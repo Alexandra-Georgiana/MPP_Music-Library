@@ -4,7 +4,7 @@ import Start from "../assets/start.jpg"
 
 const start = () => {
   return (
-    <div>
+    <div className = "first-page">
         <img src={Start} alt="start" className="fullscreen-image" />
         <div className = "name">
             <p className = "library"> Music Library</p>

@@ -22,8 +22,8 @@ const login = () => {
             </div>
             <hr className="line3"></hr>
             <div className="have-account1">
-                <p style={{color: "black", fontSize: "17px"}}>Don't have an account?</p>
-                <p style={{color: "white", fontWeight: "bold", fontSize:"20px"}}>Sign in</p>
+                <p style={{color: "black", fontSize: "1.3vw"}}>Don't have an account?</p>
+                <p style={{color: "white", fontWeight: "bold", fontSize:"1.4vw", cursor: "pointer"}}>Sign in</p>
             </div>
             <button className = "login">LogIn</button>
         </div>

@@ -12,6 +12,7 @@ import EditAcc from './Pages/edit_profile.jsx'
 import Home2 from './Pages/home2.jsx'
 import SongDetail1 from './Pages/song_detail1.jsx'
 import SongDetail2 from './Pages/song_detail2.jsx'
+import Favorites from './Pages/liked_songs.jsx'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -30,6 +31,7 @@ function App() {
             <Route path="/home2" element={<Home2 />} />
             <Route path="/song1/:id" element={<SongDetail1 />} />
             <Route path="/song2/:id" element={<SongDetail2 />} />
+            <Route path= "/favorites" element={<Favorites />} />
           </Routes>
         </BrowserRouter>
       </div>

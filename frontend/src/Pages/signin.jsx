@@ -20,8 +20,8 @@ const signin = () => {
                 </div>
                 <hr className="line3"></hr>
                 <div className="have-account1">
-                    <p style={{color: "black", fontSize: "17px"}}>Already have an account?</p>
-                    <p style={{color: "white", fontWeight: "bold", fontSize:"20px"}}>Log in</p>
+                    <p style={{color: "black", fontSize: "1.2vw"}}>Already have an account?</p>
+                    <b style={{color: "white", fontSize:"1.3vw", cursor: "pointer"}}>Log in</b>
                 </div>
                 <button className = "login">Sign In</button>
             </div>
