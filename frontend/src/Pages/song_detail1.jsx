@@ -1,15 +1,18 @@
-import React from "react";
+import React, {useState} from "react";
 import { useParams } from "react-router-dom";
 import {FaStar} from "react-icons/fa";
- import songs from "../assets/mock_songs.js";
 import Heather from '../Components/header.jsx'
 import { useNavigate } from 'react-router-dom'
 import { FastForward } from "lucide-react";
 
 const SongDetails = () => {
+  const songs = JSON.parse(localStorage.getItem('songs')) || [];
   const { id } = useParams();
   const song = songs.find((s) => s.id === parseInt(id)); 
 
+    
+  const reviews = JSON.parse(localStorage.getItem('reviews')) || [];
+  const displayReviews = reviews.filter((review) => review.song === song.title);
 
   const navigate = useNavigate();
 
@@ -26,7 +29,6 @@ const SongDetails = () => {
 
   return (
     <div className="basic-page">
-        <Heather />
         <div className = "song-list">
             <p className = "song-list-title">Library</p>
             <hr className="line"></hr>
@@ -49,7 +51,18 @@ const SongDetails = () => {
             </div>
             <hr className="line4"></hr>
             <p className="rating">{renderStars(song.rating)}</p>
+            <ul className="reviews">
+              {displayReviews.map((review) => (
+                <li key={review.id} className="review-item">
+                  <p className="review-user">{review.user}: {review.impression}</p>
+                </li>
+              ))}
+            </ul>
         </div>
+        <button className="like-button" onClick = {() => navigate('/signin')}>Add to favorites</button>
+        <button className="play-CD" onClick ={() => navigate('/signin')}>Play CD</button>
+        <button className="play-PickUp" onClick={() => navigate('/signin')}>Play Vinyl</button>
+        <Heather />
     </div>
   );
 };

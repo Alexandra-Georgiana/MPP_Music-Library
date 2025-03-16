@@ -1,11 +1,11 @@
 import React from 'react'
 import Heather from '../Components/header_loged.jsx'
 import Empty from '../assets/empty.png'
-import songs from "../assets/mock_songs.js"
 import { useNavigate } from 'react-router-dom'
 
 const home2 = () => {
   const navigate = useNavigate();
+  const songs = JSON.parse(localStorage.getItem('songs')) || [];
 
   const handleSongClick = (id) => {
     navigate(`/song2/${id}`);
@@ -13,7 +13,6 @@ const home2 = () => {
 
   return (
     <div className="basic-page">
-        <Heather />
         <div className = "song-list">
             <p className = "song-list-title">Library</p>
             <hr className="line"></hr>
@@ -33,6 +32,7 @@ const home2 = () => {
             <p className = "discover-description">Browse our extensive library, <br/> choose a track, and uncover details about the music you love.</p>
             <hr className="line2"></hr>
         </div>
+        <Heather />
     </div>
   )
 }

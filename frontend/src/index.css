@@ -13,7 +13,23 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+@keyframes marque {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
 
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg); 
+  }
+  100% {
+    transform: rotate(360deg); 
+  }
+}
 a {
   font-weight: 500;
   color: #490808;
@@ -400,7 +416,7 @@ header{
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1vw;
+  gap: 14vw;
 }
 .forgot-pswd{
   color: #ffffff;
@@ -496,7 +512,8 @@ header{
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 10px
+  gap: 10px;
+  cursor: pointer;
 }
 .avatar{
   position:absolute;
@@ -512,7 +529,7 @@ header{
 .edit{
   position: absolute;
   bottom: -70px;
-  left: 18%;
+  left: -15%;
   background-color: black;
   color: white;
   border-radius: 40px;
@@ -524,6 +541,22 @@ header{
   display: flex;
   justify-content: center;
   gap: 10px;
+}
+.logout{
+    position: absolute;
+    bottom: -70px;
+    left: 30%;
+    background-color: black;
+    color: white;
+    border-radius: 40px;
+    border-width: 3px;
+    border-color: white;
+    width: 13vw;
+    min-width: 100px;
+    text-wrap: nowrap;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
 }
 .heart{
   position: absolute;
@@ -603,7 +636,7 @@ header{
 .cancel{
   position: absolute;
   top: 110%;
-  left: 15%;
+  left:9%;
   transform: translate(-50%, -50%);
   background-color: black;
   color: white;
@@ -682,12 +715,11 @@ header{
   align-items: center;
   width: 66%;
   height: 590px;
-  background-color: #1a1a1a;
+  background-color: linear-gradient(to bottom, #1a1a1a 0%, transparent 100%);;
   gap: 20px;
   align-items: center;
   padding: 10px;
   border-radius: 10px;
-  mask-image: linear-gradient(to bottom, #000000 0%, transparent 100%);
   transition: background-color 0.25s ease;
 }
 .line4{
@@ -701,6 +733,43 @@ header{
   top: 42%;
   left: 6%;
 }
+.like-button{
+  position: absolute;
+  top: 90%;
+  right: 6%;
+  color: white;
+  font-size: 20px;
+  background-color: black;
+  border-radius: 40px;
+}
+.play-CD{
+  position: absolute;
+  top: 30%;
+  right: 2%;
+  transform: translate(-50%, -50%);
+  background-color: black;
+  color: white;
+  border-radius: 40px;
+  width: 150px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.play-PickUp{
+  position: absolute;
+  top: 40%;
+  right: 2%;
+  transform: translate(-50%, -50%);
+  background-color: black;
+  color: white;
+  border-radius: 40px;
+  width: 150px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
 .liked_title {
   display: flex;
   justify-content: flex-start; 
@@ -741,9 +810,9 @@ header{
   align-items: center;
   gap: 10px;
   position: relative;
-  top: -18%;
-  max-height: 300px;
-  max-width: 100%;
+  top: -15%;
+  height: 440%;
+  width: 82%;
   overflow-y: auto;
   padding: 10px;
   scrollbar-width: none;
@@ -753,7 +822,7 @@ header{
   display: flex;
   flex-direction: column; 
   width: 100%;
-  margin-right:30px;
+  margin-right: 0px;
 }
 
 .fav_song-item {
@@ -767,12 +836,11 @@ header{
   border-left: none;
   border-top: none;
   width: 100%;
-  background: linar-gradient(90deg, #000000 0%, #3a3636 100%);
 }
 
 .fav_album-cover {
-  width: 100px;
-  height: 100px;
+  width: 130px;
+  height: 130px;
   padding: 10px;
   object-fit: cover;
 }
@@ -806,10 +874,101 @@ header{
   gap: 20px;
   bottom: 20px;
   right: 20px;
-  background: #312f2f;
+  background: linear-gradient(90deg, #000000 0%, #665e5e 100%);
   padding: 10px;
   border-radius: 40px;
   box-shadow: 0px 15px 10px rgba(0, 0, 0, 0.192);
   cursor: grab;
+}
+.music-widget .cd-widget-content .controls {
+  width: 100%;
+  overflow: hidden; 
+}
+
+.cd-widget-content {
+  display: flex;
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+}
+
+.music-widget .cd-widget-content .controls {
+  width: 350px; 
+  overflow: hidden; 
+}
+
+.music-widget .cd-widget-content .controls p {
+  color: #ffffff98;
+  font-size: 25px;
+  white-space: nowrap;
+  animation: marque 20s linear infinite;
+}
+
+.cd-image img {
+  width: 200px;
+  height: 200px;
+  border-radius: 10px;
+}
+
+input[type="range"] {
+  width: 300px;
+  border:none;
+}
+
+.buttons {
+  display: flex;
+  gap: 20px;
+}
+.play-bar{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  width: 340px;
+
+}
+.avatar-img {
+  width: 250px;
+  height: 250px; 
+  object-fit: cover; 
+  border-radius: 50%; 
+}
+.reviews{
+  position: absolute;
+  top: 50%;
+  left: 6%;
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  width: 100%;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: none;
+  color: white;
+}
+.dropdown {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  background: rgb(17, 17, 17);
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.dropdown-item {
+  padding: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+  background: #f1f1f1;
 }
 

@@ -1,8 +1,11 @@
 import React from 'react'
 import Start from "../assets/start.jpg"
+import { useNavigate } from 'react-router-dom';
+
 
 
 const start = () => {
+  const navigate = useNavigate();
   return (
     <div className = "first-page">
         <img src={Start} alt="start" className="fullscreen-image" />
@@ -15,7 +18,7 @@ const start = () => {
         <div className = "author">
             <b className = "author-name">- Billy Joel</b>
         </div>
-            <button className = "browse">Browse</button>
+            <button className = "browse" onClick = {() => navigate('/home1')}>Browse</button>
     </div>
     
   )

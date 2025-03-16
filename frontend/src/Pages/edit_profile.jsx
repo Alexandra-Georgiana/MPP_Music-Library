@@ -1,35 +1,114 @@
-import React from 'react'
-import Header from '../Components/header_loged.jsx'
-import User_light from '../assets/user-avatar-light.png'
+import React, { useState, useEffect } from 'react';
+import Header from '../Components/header_loged.jsx';
+import User_light from '../assets/user-avatar-light.png';
+import { useNavigate } from 'react-router-dom';
 
-const edit_profile = () => {
+const EditProfile = () => {
+  const navigate = useNavigate();
+  const [favoriteGenre, setFavoriteGenre] = useState('');
+  const [favoriteArtist, setFavoriteArtist] = useState('');
+  const [bio, setBio] = useState('');
+  const [avatar, setAvatar] = useState(User_light);  
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  useEffect(() => {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    
+
+    if (currentUser) {
+      setFavoriteGenre(currentUser.favoriteGenre || '');
+      setFavoriteArtist(currentUser.favoriteArtist || '');
+      setBio(currentUser.bio || '');
+      setAvatar(currentUser.avatar || User_light); 
+    }
+  }, []);
+
+  const handleSave = () => {
+    const users = JSON.parse(localStorage.getItem('users')) || [];
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const currentUserIndex = users.findIndex((user) => user.email === currentUser.email);
+
+    const updatedUser = {
+      ...currentUser,
+      ...(favoriteGenre && favoriteGenre.trim() !== "" && favoriteGenre !== currentUser.favoriteGenre && { favoriteGenre }),
+      ...(favoriteArtist && favoriteArtist.trim() !== "" && favoriteArtist !== currentUser.favoriteArtist && { favoriteArtist }),
+      ...(bio && bio.trim() !== "" && bio !== currentUser.bio && { bio }),
+      ...(avatar && avatar !== currentUser.avatar && { avatar }),
+  };
+    
+    
+
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+
+      localStorage.setItem('users', JSON.stringify(users)); 
+
+    alert('Profile updated successfully');
+    navigate('/account');
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setAvatar(imageUrl); 
+      setSelectedImage(file); 
+    }
+  };
+
+  const triggerFileInput = () => {
+    document.getElementById('fileInput').click();
+  };
+
   return (
-    <div className = "background_gradient">
-        <Header/>
-        <div className = "edit-info">
-            <div className = "field">
-                <p className = "info-class">What is your favorite ganra?</p>
-                <input type="text" className = "field_input"/>
-            </div>
-            <div className = "field">
-                <p className = "info-class">What is your favorite artist?</p>
-                <input type="text" className = "field_input"/>
-            </div>
-            <div className = "field">
-                <p className = "info-class">Tell us something about yourself: </p>
-                <input type="text" className = "field_input"/>
-            </div>
-            <div className = "upload_img">
-                <p className = "info-class">UPLOAD PICTURE</p>
-            </div>
+    <div className="background_gradient">
+      <Header />
+      <div className="edit-info">
+        <div className="field">
+          <p className="info-class">What is your favorite genre?</p>
+          <input
+            type="text"
+            className="field_input"
+            value={favoriteGenre}
+            onChange={(e) => setFavoriteGenre(e.target.value)}
+          />
         </div>
-        <div className = "avatar">
-            <img src = {User_light} alt = "Avatar" className = "avatar-img"/>
-            <button className = "cancel">Cancel</button>
-            <button className = "save">Save </button>
+        <div className="field">
+          <p className="info-class">What is your favorite artist?</p>
+          <input
+            type="text"
+            className="field_input"
+            value={favoriteArtist}
+            onChange={(e) => setFavoriteArtist(e.target.value)}
+          />
         </div>
+        <div className="field">
+          <p className="info-class">Tell us something about yourself:</p>
+          <input
+            type="text"
+            className="field_input"
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+          />
+        </div>
+        <div className="upload_img">
+          <p className="info-class" onClick={triggerFileInput}>UPLOAD PICTURE</p>
+          
+          <input
+            type="file"
+            accept="image/*"
+            id="fileInput"
+            style={{ display: 'none' }}
+            onChange={handleImageUpload}
+          />
+        </div>
+      </div>
+      <div className="avatar">
+        <img src={avatar} alt="Avatar" className="avatar-img" />
+        <button className="cancel" onClick = {()=>navigate('/account')}>Cancel</button>
+        <button className="save" onClick={handleSave}>Save</button>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default edit_profile
+export default EditProfile;

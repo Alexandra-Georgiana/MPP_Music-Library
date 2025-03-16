@@ -1,11 +1,11 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import Heather from '../Components/header.jsx'
 import Empty from '../assets/empty.png'
-import songs from "../assets/mock_songs.js"
 import { useNavigate } from 'react-router-dom'
 
 const home1 = () => {
   const navigate = useNavigate();
+  const songs = JSON.parse(localStorage.getItem('songs')) || [];
 
   const handleSongClick = (id) => {
     navigate(`/song1/${id}`);

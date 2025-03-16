@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import {useEffect} from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -13,16 +14,24 @@ import Home2 from './Pages/home2.jsx'
 import SongDetail1 from './Pages/song_detail1.jsx'
 import SongDetail2 from './Pages/song_detail2.jsx'
 import Favorites from './Pages/liked_songs.jsx'
+import songs from './assets/mock_songs.js'
 
 function App() {
   const [count, setCount] = useState(0)
+  useEffect(() => {
+    const storedSongs = localStorage.getItem('songs'); 
+    if (!storedSongs) {
+      console.log('adding songs to local storage');
+      localStorage.setItem('songs', JSON.stringify(songs));
+    }
+  },[]);
 
   return (
     <main>
       <div>
         <BrowserRouter>
           <Routes>
-            <Route path="/start" element={<Start />} />
+            <Route path="/" element={<Start />} />
             <Route path="/home1" element={<Home1 />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signin" element={<Signin />} />
