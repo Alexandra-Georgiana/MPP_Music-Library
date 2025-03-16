@@ -6,8 +6,9 @@ import { useNavigate } from 'react-router-dom'
 
 const account = () => {
   const navigate = useNavigate();
-  const storedUsers = JSON.parse(localStorage.getItem('currentUser')) || [];
-  const currentUser = storedUsers || {};
+  const storedUser = JSON.parse(localStorage.getItem('currentUser')); 
+  const currentUser = Array.isArray(storedUser) ? storedUser[0] : storedUser || {}; 
+
   const [avatar, setAvatar] = useState(currentUser.avatar || AvatarDrk);
 
   useEffect(() => {
@@ -28,7 +29,7 @@ const account = () => {
         <div className = "account-info">
             <div className = "title">
                 <p className = "title-text">Wellcome</p>
-                <span className = "username">Username</span>
+                <span className = "username">{currentUser.username}</span>
             </div>
             <div className = "user-info">
                 <div className = "info">

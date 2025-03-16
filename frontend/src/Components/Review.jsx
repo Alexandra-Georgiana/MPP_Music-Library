@@ -29,6 +29,7 @@ const Review = ({songs, currentSongIndex, setReview}) => {
     };
   
     const updatedLikedSongs = {
+      user,
       ...currentSong,
       rating,
     };

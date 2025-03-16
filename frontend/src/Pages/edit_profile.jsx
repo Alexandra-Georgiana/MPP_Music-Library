@@ -25,26 +25,37 @@ const EditProfile = () => {
 
   const handleSave = () => {
     const users = JSON.parse(localStorage.getItem('users')) || [];
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const storedUser = JSON.parse(localStorage.getItem('currentUser'));
+    const currentUser = Array.isArray(storedUser) ? storedUser[0] : storedUser;
+
+    if (!currentUser) {
+        alert("User not found!");
+        return;
+    }
+
     const currentUserIndex = users.findIndex((user) => user.email === currentUser.email);
 
     const updatedUser = {
-      ...currentUser,
-      ...(favoriteGenre && favoriteGenre.trim() !== "" && favoriteGenre !== currentUser.favoriteGenre && { favoriteGenre }),
-      ...(favoriteArtist && favoriteArtist.trim() !== "" && favoriteArtist !== currentUser.favoriteArtist && { favoriteArtist }),
-      ...(bio && bio.trim() !== "" && bio !== currentUser.bio && { bio }),
-      ...(avatar && avatar !== currentUser.avatar && { avatar }),
-  };
-    
-    
+        ...currentUser,
+        ...(favoriteGenre.trim() !== "" && { favoriteGenre }),
+        ...(favoriteArtist.trim() !== "" && { favoriteArtist }),
+        ...(bio.trim() !== "" && { bio }),
+        ...(avatar !== User_light && { avatar }),
+    };
 
-      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+    if (currentUserIndex !== -1) {
+        users[currentUserIndex] = updatedUser;
+    } else {
+        users.push(updatedUser); 
+    }
 
-      localStorage.setItem('users', JSON.stringify(users)); 
+    localStorage.setItem('users', JSON.stringify(users));
+    localStorage.setItem('currentUser', JSON.stringify(updatedUser)); 
 
     alert('Profile updated successfully');
     navigate('/account');
   };
+
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];

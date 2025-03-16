@@ -15,6 +15,10 @@ import SongDetail1 from './Pages/song_detail1.jsx'
 import SongDetail2 from './Pages/song_detail2.jsx'
 import Favorites from './Pages/liked_songs.jsx'
 import songs from './assets/mock_songs.js'
+import Admin from './Pages/adminPage.jsx'
+import AdimnSC from './Components/AdminShortCut.jsx'
+import AdminLog from './Pages/admin_login.jsx'
+import createAdminAcc from './adminAcc.js'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -26,10 +30,13 @@ function App() {
     }
   },[]);
 
+  createAdminAcc();
+
   return (
     <main>
       <div>
         <BrowserRouter>
+        <AdimnSC/>
           <Routes>
             <Route path="/" element={<Start />} />
             <Route path="/home1" element={<Home1 />} />
@@ -41,6 +48,8 @@ function App() {
             <Route path="/song1/:id" element={<SongDetail1 />} />
             <Route path="/song2/:id" element={<SongDetail2 />} />
             <Route path= "/favorites" element={<Favorites />} />
+            <Route path = "/admin" element = {<Admin />} />
+            <Route path = "/admin_login" element = {<AdminLog />} />
           </Routes>
         </BrowserRouter>
       </div>
