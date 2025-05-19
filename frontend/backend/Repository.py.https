@@ -1,0 +1,64 @@
+# Modified Repository.py with HTTPS support
+from flask import Flask, request, jsonify
+import pyodbc
+from monitor_thread import monitor_comments
+import datetime
+from functools import wraps
+import jwt as pyjwt  # Rename to avoid confusion
+import random
+import string
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import os
+from dotenv import load_dotenv
+import ssl
+
+app = Flask(__name__)
+load_dotenv()  # Load environment variables
+
+# Email Configuration
+GMAIL_USER = os.getenv('GMAIL_USER', 'your-email@gmail.com')
+GMAIL_APP_PASSWORD = os.getenv('GMAIL_APP_PASSWORD', 'your-app-password')
+
+# SQL Server connection configuration
+SQL_SERVER_CONNECTION_STRING = os.getenv('SQL_SERVER_CONNECTION_STRING', 
+                                     'mssql+pyodbc://sa:StrongPassword123!@database:1433/MusicLibrary?driver=ODBC+Driver+17+for+SQL+Server')
+
+# Certificate paths
+CERT_FILE = os.getenv('SSL_CERT', './certs/certificate.crt')
+KEY_FILE = os.getenv('SSL_KEY', './certs/private.key')
+
+# Set your secret key for JWT - keep this very secure in production
+app.config['SECRET_KEY'] = 'admin-secret-key-change-this-in-production'
+
+def generate_admin_token(admin_id, email):
+    expiration = datetime.datetime.utcnow() + datetime.timedelta(hours=24)  # Token expires in 24 hours
+    token = pyjwt.encode({
+        'admin_id': admin_id,
+        'email': email,
+        'exp': expiration.timestamp()  # Convert to Unix timestamp
+    }, app.config['SECRET_KEY'], algorithm='HS256')
+    return token
+
+# [Copy the rest of your Repository.py file here]
+# This is just a placeholder for now
+
+if __name__ == '__main__':
+    try:
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        context.load_cert_chain(CERT_FILE, KEY_FILE)
+        
+        # Host is set to '0.0.0.0' to make it accessible from outside the container
+        app.run(debug=False, host='0.0.0.0', port=5000, ssl_context=context)
+        print("Server is running on https://mpp.local:5000")
+        
+        # Start the monitor thread
+        monitor_thread = threading.Thread(target=monitor_comments)
+        monitor_thread.daemon = True
+        monitor_thread.start()
+    except Exception as e:
+        print(f"Error starting server with HTTPS: {str(e)}")
+        print("Falling back to HTTP...")
+        app.run(debug=False, host='0.0.0.0', port=5000)
+        print("Server is running on http://mpp.local:5000")
