@@ -1,5 +1,6 @@
 import React from 'react'
-import Start from "../assets/start.jpg"
+import Start from "../../assets/start.jpg"
+import './index.css'
 import { useNavigate } from 'react-router-dom';
 
 

@@ -4,21 +4,23 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Start from './Pages/start.jsx'
-import Home1 from './Pages/home1.jsx'
-import Login from './Pages/login.jsx'
-import Signin from './Pages/signin.jsx'
-import Account from './Pages/account.jsx'
-import EditAcc from './Pages/edit_profile.jsx'
-import Home2 from './Pages/home2.jsx'
-import SongDetail1 from './Pages/song_detail1.jsx'
-import SongDetail2 from './Pages/song_detail2.jsx'
-import Favorites from './Pages/liked_songs.jsx'
+import Start from './Pages/StartPage/start.jsx'
+import Home1 from './Pages/HomePage/home1.jsx'
+import Login from './Pages/RegistrationForms/login.jsx'
+import Signin from './Pages/RegistrationForms/signin.jsx'
+import Account from './Pages/AccountPage/account.jsx'
+import EditAcc from './Pages/EditProfilePage/edit_profile.jsx'
+import Home2 from './Pages/HomePage/home2.jsx'
+import SongDetail1 from './Pages/SongDetailPage/song_detail1.jsx'
+import SongDetail2 from './Pages/SongDetailPage/song_detail2.jsx'
+import Favorites from './Pages/LikedSongsPage/liked_songs.jsx'
 import songs from './assets/mock_songs.js'
-import Admin from './Pages/adminPage.jsx'
-import AdimnSC from './Components/AdminShortCut.jsx'
-import AdminLog from './Pages/admin_login.jsx'
-import createAdminAcc from './adminAcc.js'
+import Admin from './Pages/Admin/adminPage.jsx'
+import AdimnSC from '../backend/AdminHandler/AdminShortCut.jsx'
+import AdminLog from './Pages/Admin/admin_login.jsx'
+import createAdminAcc from '../backend/AdminHandler/adminAcc.js'
+import MonitorUsers from './Pages/Admin/monitoredUsers.jsx'
+import VerifyEmail from './Pages/VerificationPage/VerifyEmail'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -50,6 +52,8 @@ function App() {
             <Route path= "/favorites" element={<Favorites />} />
             <Route path = "/admin" element = {<Admin />} />
             <Route path = "/admin_login" element = {<AdminLog />} />
+            <Route path = "/monitored_users" element = {<MonitorUsers />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
           </Routes>
         </BrowserRouter>
       </div>

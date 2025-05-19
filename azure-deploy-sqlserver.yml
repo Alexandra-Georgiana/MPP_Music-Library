@@ -1,0 +1,160 @@
+name: Deploy to Azure with SQL Server and HTTPS
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  AZURE_CONTAINER_REGISTRY: "mppregistryxxxx"  # Replace with your unique registry name
+  RESOURCE_GROUP: "mpp-resource-group"
+  LOCATION: "eastus"
+  SQL_SERVER_NAME: "mpp-sqlserver"
+  SQL_DB_NAME: "MusicLibrary"
+  SQL_ADMIN_USER: "mpp_admin"
+  CONTAINER_APP_ENV_NAME: "mpp-environment"
+  CUSTOM_DOMAIN: "your-domain.com"  # Replace with your actual domain name
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup SSL certificates
+        run: |
+          # Create SSL directory if it doesn't exist
+          mkdir -p ssl
+          # Copy the certificate and key from secrets
+          echo "${{ secrets.SSL_CERTIFICATE }}" > ssl/certificate.crt
+          echo "${{ secrets.SSL_PRIVATE_KEY }}" > ssl/private.key
+
+          # Copy certificate and key to frontend
+          cp ssl/certificate.crt frontend/certificate.crt
+          cp ssl/private.key frontend/private.key
+
+          # Copy the HTTPS nginx config
+          cp frontend/nginx.https.conf frontend/nginx.conf
+
+      - name: Create resource group
+        run: |
+          az group create --name ${{ env.RESOURCE_GROUP }} --location ${{ env.LOCATION }}
+
+      - name: Create SQL Server
+        run: |
+          az sql server create \
+            --name ${{ env.SQL_SERVER_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --location ${{ env.LOCATION }} \
+            --admin-user ${{ env.SQL_ADMIN_USER }} \
+            --admin-password "${{ secrets.SQL_ADMIN_PASSWORD }}"
+
+      - name: Create SQL Database
+        run: |
+          az sql db create \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --server ${{ env.SQL_SERVER_NAME }} \
+            --name ${{ env.SQL_DB_NAME }} \
+            --service-objective S0
+
+      - name: Configure SQL Server firewall
+        run: |
+          az sql server firewall-rule create \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --server ${{ env.SQL_SERVER_NAME }} \
+            --name AllowAzureServices \
+            --start-ip-address 0.0.0.0 \
+            --end-ip-address 0.0.0.0
+
+      - name: Create container registry
+        run: |
+          az acr create --resource-group ${{ env.RESOURCE_GROUP }} \
+            --name ${{ env.AZURE_CONTAINER_REGISTRY }} --sku Basic \
+            --admin-enabled true
+
+      - name: Build and push container images
+        run: |
+          # Get ACR credentials
+          ACR_USERNAME=$(az acr credential show --name ${{ env.AZURE_CONTAINER_REGISTRY }} --query username -o tsv)
+          ACR_PASSWORD=$(az acr credential show --name ${{ env.AZURE_CONTAINER_REGISTRY }} --query "passwords[0].value" -o tsv)
+          
+          # Login to ACR
+          echo $ACR_PASSWORD | docker login ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io -u $ACR_USERNAME --password-stdin
+          
+          # Build and push Flask backend
+          docker build -f frontend/backend/Dockerfile.sqlserver -t ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/flask-backend:latest ./frontend/backend
+          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/flask-backend:latest
+          
+          # Build and push Node backend
+          docker build -f frontend/backend/Dockerfile.node -t ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/node-backend:latest ./frontend/backend
+          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/node-backend:latest
+          
+          # Build and push frontend
+          docker build -f frontend/Dockerfile.https -t ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/frontend:latest ./frontend
+          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/frontend:latest
+
+      - name: Create Container App Environment
+        run: |
+          az containerapp env create \
+            --name ${{ env.CONTAINER_APP_ENV_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --location ${{ env.LOCATION }}
+
+      - name: Deploy Container Apps
+        run: |
+          # Deploy Flask backend
+          az containerapp create \
+            --name flask-backend \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --environment ${{ env.CONTAINER_APP_ENV_NAME }} \
+            --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/flask-backend:latest \
+            --target-port 5000 \
+            --ingress internal \
+            --env-vars \
+              SQL_SERVER_CONNECTION_STRING="mssql+pyodbc://${{ env.SQL_ADMIN_USER }}:${{ secrets.SQL_ADMIN_PASSWORD }}@${{ env.SQL_SERVER_NAME }}.database.windows.net:1433/${{ env.SQL_DB_NAME }}?driver=ODBC+Driver+17+for+SQL+Server" \
+            --registry-server ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io \
+            --registry-username $(az acr credential show --name ${{ env.AZURE_CONTAINER_REGISTRY }} --query username -o tsv) \
+            --registry-password $(az acr credential show --name ${{ env.AZURE_CONTAINER_REGISTRY }} --query "passwords[0].value" -o tsv)
+
+          # Deploy Node.js backend
+          az containerapp create \
+            --name node-backend \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --environment ${{ env.CONTAINER_APP_ENV_NAME }} \
+            --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/node-backend:latest \
+            --target-port 3000 \
+            --ingress internal \
+            --env-vars \
+              SQL_SERVER_CONNECTION_STRING="mssql://${{ env.SQL_ADMIN_USER }}:${{ secrets.SQL_ADMIN_PASSWORD }}@${{ env.SQL_SERVER_NAME }}.database.windows.net:1433/${{ env.SQL_DB_NAME }}" \
+            --registry-server ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io \
+            --registry-username $(az acr credential show --name ${{ env.AZURE_CONTAINER_REGISTRY }} --query username -o tsv) \
+            --registry-password $(az acr credential show --name ${{ env.AZURE_CONTAINER_REGISTRY }} --query "passwords[0].value" -o tsv)
+
+          # Deploy frontend with HTTPS
+          az containerapp create \
+            --name frontend \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --environment ${{ env.CONTAINER_APP_ENV_NAME }} \
+            --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/frontend:latest \
+            --target-port 443 \
+            --ingress external \
+            --registry-server ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io \
+            --registry-username $(az acr credential show --name ${{ env.AZURE_CONTAINER_REGISTRY }} --query username -o tsv) \
+            --registry-password $(az acr credential show --name ${{ env.AZURE_CONTAINER_REGISTRY }} --query "passwords[0].value" -o tsv)
+
+      - name: Configure custom domain with HTTPS (if available)
+        if: env.CUSTOM_DOMAIN != 'your-domain.com'
+        run: |
+          # Get the default domain
+          FQDN=$(az containerapp show --name frontend --resource-group ${{ env.RESOURCE_GROUP }} --query properties.configuration.ingress.fqdn -o tsv)
+          echo "Container App is available at: $FQDN"
+          
+          # Note: Adding a custom domain requires DNS verification and certificate binding
+          # This would typically be done through the Azure Portal or with additional steps
+          echo "To add a custom domain with SSL certificate, follow the instructions in Azure Portal"
