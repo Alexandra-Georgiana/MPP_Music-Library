@@ -28,7 +28,7 @@ cmds = [
 cmds = [
   "cd frontend && npm run build && cd .."
 ]
-output = "dist_railway"
+output = "railway-app"
 
 [phases.setup.env]
 PYTHONUNBUFFERED = "1"
@@ -45,4 +45,3 @@ cmd = "node railway-up.js"
 web = "cd $PROJECT_DIR && node railway-up.js"
 api = "cd $PROJECT_DIR/frontend/backend && python Repository.py"
 worker = "cd $PROJECT_DIR/frontend/backend && node server.js"
-

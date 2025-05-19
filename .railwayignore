@@ -1,0 +1,32 @@
+# Railway ignore file
+# Prevents conflicts with 'app' directories during deployment
+
+# Ignore node_modules to prevent app directory conflicts
+node_modules/
+
+# Explicitly ignore any app directories 
+**/app/
+
+# Ignore cache directories that might cause issues
+**/.cache/
+**/__pycache__/
+
+# Ignore backup files created during deployment
+**/*_bak_*
+**/*.bak
+
+# Ignore development and deployment scripts that aren't needed in production
+*.ps1
+*.bat
+
+# Ignore Git files
+.git/
+.gitignore
+
+# Ignore unnecessary deployment files
+RAILWAY_*.md
+AZURE_*.md
+*.md
+deploy-*.sh
+!pre-deploy.sh
+!pre-deploy-clean.sh

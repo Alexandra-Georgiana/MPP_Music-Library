@@ -50,20 +50,15 @@ if use_pg or db_type == 'postgresql':
     # Print connection details for debugging
     print(f"Using PostgreSQL connection: host={pg_host}, db={pg_db}, user={pg_user}")
 else:
-    # SQL Server connection (Local/Docker/Railway)
+    # SQL Server connection (Local/Docker)
     sql_host = os.getenv('RAILWAY_DATABASE_HOST', 'sqlserver')
     sql_user = os.getenv('RAILWAY_DATABASE_USER', 'sa')
     sql_password = os.getenv('RAILWAY_DATABASE_PASSWORD', 'StrongPassword123!')
     sql_port = os.getenv('RAILWAY_DATABASE_PORT', '1433')
     
-    print(f"Database connection details: Host={sql_host}, User={sql_user}, Port={sql_port}")
-    
     if is_railway:
-        # For Railway deployment
         SQL_SERVER_CONNECTION_STRING = f'mssql+pyodbc://{sql_user}:{sql_password}@{sql_host}:{sql_port}/MusicLibrary?driver=ODBC+Driver+17+for+SQL+Server'
-        print(f"Using Railway SQL Server connection string: {SQL_SERVER_CONNECTION_STRING}")
     else:
-        # For local/Docker development
         SQL_SERVER_CONNECTION_STRING = os.getenv('SQL_SERVER_CONNECTION_STRING', 
                                          'mssql+pyodbc://sa:StrongPassword123!@database:1433/MusicLibrary?driver=ODBC+Driver+17+for+SQL+Server')
 

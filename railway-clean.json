@@ -1,13 +1,13 @@
 {
-  "": "https://railway.app/railway.schema.json",
+  "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
     "nixpacksConfigPath": "deploy-nixpacks.toml",
-    "buildCommand": "bash ./pre-deploy-clean2.sh"
+    "buildCommand": "bash ./pre-deploy.sh"
   },
   "deploy": {
     "numReplicas": 1,
-    "startCommand": "node railway-up-clean2.js",
+    "startCommand": "cd $PROJECT_DIR && node railway-up-clean.js",
     "healthcheckPath": "/",
     "healthcheckTimeout": 100,
     "restartPolicyType": "ON_FAILURE",

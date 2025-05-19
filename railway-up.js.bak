@@ -1,0 +1,205 @@
+// railway-up.js - Helper script for Railway deployment
+const { spawn } = require('child_process');
+const path = require('path');
+const fs = require('fs');
+const os = require('os');
+
+console.log('==========================================');
+console.log('Starting Music Player Project on Railway...');
+console.log('Environment:', process.env.NODE_ENV);
+console.log('Railway Environment:', process.env.RAILWAY_ENVIRONMENT);
+console.log('Current Directory:', __dirname);
+
+// Make sure we handle any uncaught errors
+process.on('uncaughtException', (err) => {
+  console.error('FATAL ERROR:', err);
+  console.error('Stack trace:', err.stack);
+  process.exit(1);
+});
+
+// Copy the Railway-specific version of Repository.py if in Railway environment
+if (process.env.RAILWAY_ENVIRONMENT) {
+    const backendDir = path.join(__dirname, 'frontend', 'backend');
+    
+    // Check if backend directory exists
+    if (!fs.existsSync(backendDir)) {
+        console.error(`ERROR: Backend directory not found: ${backendDir}`);
+        console.log('Current directory contents:');
+        try {
+            const dirContents = fs.readdirSync(__dirname);
+            console.log(dirContents);
+            
+            // Check if frontend exists
+            if (fs.existsSync(path.join(__dirname, 'frontend'))) {
+                console.log('Contents of frontend:');
+                console.log(fs.readdirSync(path.join(__dirname, 'frontend')));
+            }
+        } catch (err) {
+            console.error(`Error reading directory: ${err.message}`);
+        }
+        process.exit(1);
+    }
+    
+    const sourceFile = path.join(backendDir, 'Repository.py.railway');
+    const targetFile = path.join(backendDir, 'Repository.py');
+    
+    if (fs.existsSync(sourceFile)) {
+        console.log('Copying Railway-specific Repository.py...');
+        try {
+            fs.copyFileSync(sourceFile, targetFile);
+            console.log('Successfully copied Repository.py.railway to Repository.py');
+        } catch (error) {
+            console.error('Error copying Repository.py.railway:', error.message);
+        }
+    } else {
+        console.warn('Repository.py.railway not found, using existing Repository.py');
+        console.log('Contents of backend directory:');
+        try {
+            console.log(fs.readdirSync(backendDir));
+        } catch (err) {
+            console.error(`Error reading backend directory: ${err.message}`);
+        }
+    }
+}
+
+// Determine which service to start based on env vars or args
+const args = process.argv.slice(2);
+const isWorker = args.includes('worker') || process.env.RAILWAY_SERVICE_NAME === 'worker';
+
+// Helper function to execute a command with proper shell handling
+function executeCommand(command, args, options = {}) {
+    console.log(`Executing command: ${command} ${args.join(' ')}`);
+    console.log(`Working directory: ${options.cwd || process.cwd()}`);
+    
+    // Use proper shell based on platform
+    const isWindows = os.platform() === 'win32';
+    let proc;
+    
+    // Make sure we have the correct working directory
+    if (!options.cwd) {
+        options.cwd = process.cwd();
+    }
+      // Verify the working directory exists
+    if (!fs.existsSync(options.cwd)) {
+        console.error(`ERROR: Working directory does not exist: ${options.cwd}`);
+        console.log('Creating directory...');
+        try {
+            // Make sure we don't try to create a directory that's actually a file
+            const parentPath = path.dirname(options.cwd);
+            if (fs.existsSync(parentPath) && !fs.statSync(parentPath).isDirectory()) {
+                console.error(`ERROR: Parent path is a file, not a directory: ${parentPath}`);
+                // Rename the file to resolve conflict
+                fs.renameSync(parentPath, `${parentPath}_file_bak_${Date.now()}`);
+                console.log(`Renamed conflicting file at ${parentPath}`);
+            }
+            fs.mkdirSync(options.cwd, { recursive: true });
+            console.log(`Created directory: ${options.cwd}`);
+        } catch (err) {
+            console.error(`Failed to create directory: ${err.message}`);
+            process.exit(1);
+        }
+    }
+    
+    if (isWindows) {
+        args = ['/c', command, ...args];
+        proc = spawn('cmd', args, { ...options, stdio: 'inherit' });
+    } else {
+        proc = spawn(command, args, { ...options, stdio: 'inherit' });
+    }
+    
+    proc.on('error', (err) => {
+        console.error(`Failed to execute command: ${err.message}`);
+        process.exit(1);
+    });
+    
+    return proc;
+}
+
+// Determine what to start based on the environment and service name
+const serviceName = process.env.RAILWAY_SERVICE_NAME || '';
+console.log(`Service name: ${serviceName}`);
+
+// Define the backend path
+const backendPath = path.join(__dirname, 'frontend', 'backend');
+
+// Check if we can find the Repository.py file
+const repositoryPath = path.join(backendPath, 'Repository.py');
+const serverJsPath = path.join(backendPath, 'server.js');
+
+console.log(`Checking for key files:`);
+console.log(`- Repository.py: ${fs.existsSync(repositoryPath) ? 'Found' : 'Not found'}`);
+console.log(`- server.js: ${fs.existsSync(serverJsPath) ? 'Found' : 'Not found'}`);
+
+// Simple function to start the proper service
+function startService() {
+    if (isWorker || serviceName === 'worker') {
+        console.log('Starting Node.js backend worker service...');
+        
+        // Use executeCommand directly without changing directories
+        executeCommand('node', [serverJsPath], {
+            cwd: __dirname
+        });
+    } else {
+        console.log('Starting Flask backend service...');
+        
+        // Use executeCommand directly without changing directories
+        executeCommand('python', [repositoryPath], {
+            cwd: __dirname
+        });
+    }
+}
+
+// Try to start the service
+try {
+    startService();
+} catch (err) {
+    console.error('Failed to start service:', err);
+    console.error('Attempting recovery...');
+    
+    // Try to fix common issues and retry
+    if (!fs.existsSync(backendPath)) {
+        console.log('Creating backend directory structure...');
+        fs.mkdirSync(backendPath, { recursive: true });
+    }
+      // If Repository.py doesn't exist but Repository.py.railway does, copy it
+    if (fs.existsSync(path.join(backendPath, 'Repository.py.railway'))) {
+        console.log('Copying Repository.py.railway to Repository.py...');
+        try {
+            // Check if repositoryPath is a directory, which would cause "Is a directory" error
+            if (fs.existsSync(repositoryPath) && fs.statSync(repositoryPath).isDirectory()) {
+                console.error(`ERROR: Repository.py path exists but is a directory: ${repositoryPath}`);
+                // Rename the directory to resolve conflict
+                const backupDirName = `${repositoryPath}_directory_bak_${Date.now()}`;
+                fs.renameSync(repositoryPath, backupDirName);
+                console.log(`Renamed conflicting directory to: ${backupDirName}`);
+            }
+            fs.copyFileSync(path.join(backendPath, 'Repository.py.railway'), repositoryPath);
+            console.log('Successfully copied Repository.py.railway to Repository.py');
+        } catch (error) {
+            console.error(`Error copying Repository.py.railway: ${error.message}`);
+        }
+    }
+    
+    // If server.js doesn't exist but server.js.railway does, copy it
+    if (fs.existsSync(path.join(backendPath, 'server.js.railway'))) {
+        console.log('Copying server.js.railway to server.js...');
+        try {
+            // Check if serverJsPath is a directory, which would cause "Is a directory" error
+            if (fs.existsSync(serverJsPath) && fs.statSync(serverJsPath).isDirectory()) {
+                console.error(`ERROR: server.js path exists but is a directory: ${serverJsPath}`);
+                // Rename the directory to resolve conflict
+                const backupDirName = `${serverJsPath}_directory_bak_${Date.now()}`;
+                fs.renameSync(serverJsPath, backupDirName);
+                console.log(`Renamed conflicting directory to: ${backupDirName}`);
+            }
+            fs.copyFileSync(path.join(backendPath, 'server.js.railway'), serverJsPath);
+            console.log('Successfully copied server.js.railway to server.js');
+        } catch (error) {
+            console.error(`Error copying server.js.railway: ${error.message}`);
+        }
+    }
+    
+    // Try one more time
+    console.log('Retrying service start...');
+    startService();
+}

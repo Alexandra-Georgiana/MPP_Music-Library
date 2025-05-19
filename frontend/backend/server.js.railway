@@ -51,13 +51,24 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Create uploads directory if it doesn't exist
-if (!fs.existsSync('uploads')) {
-  fs.mkdirSync('uploads');
+// Create uploads directory using absolute path
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  try {
+    // Check if the path exists but is a file
+    if (fs.existsSync(uploadsDir) && fs.statSync(uploadsDir).isFile()) {
+      console.error('Error: uploads path exists but is a file');
+      fs.renameSync(uploadsDir, `${uploadsDir}_file_bak_${Date.now()}`);
+    }
+    fs.mkdirSync(uploadsDir, { recursive: true });
+    console.log(`Created uploads directory at: ${uploadsDir}`);
+  } catch (error) {
+    console.error(`Failed to create uploads directory: ${error.message}`);
+  }
 }
 
-// Ensure the /uploads directory is served correctly
-app.use('/uploads', express.static('uploads'));
+// Ensure the /uploads directory is served correctly with absolute path
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // [Copy the rest of your server.js file here]
 // This is just a placeholder

@@ -1,0 +1,184 @@
+#!/bin/bash
+# pre-deploy.sh - Ru# Copy Railway-specific files (with error handling)
+echo "Checking for Railway-specific files..."
+
+if [ -f frontend/backend/Repository.py.railway ]; then
+  echo "✅ Found Repository.py.railway"
+  echo "Copying Railway-specific Repository.py..."
+  cp -f frontend/backend/Repository.py.railway frontend/backend/Repository.py
+  if [ $? -eq 0 ]; then
+    echo "✅ Successfully copied Repository.py.railway to Repository.py"
+  else
+    echo "❌ Error copying Repository.py.railway"
+    # Create an emergency backup
+    echo "Creating emergency Repository.py..."
+    echo 'from flask import Flask, jsonify
+app = Flask(__name__)
+@app.route("/")
+def hello():
+    return jsonify({"status": "OK", "message": "Emergency Flask server is running"})
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))' > frontend/backend/Repository.py
+  fi
+else
+  echo "⚠️ Warning: Repository.py.railway not found"
+  echo "Contents of frontend/backend:"
+  ls -la frontend/backend/ || echo "Could not list directory"
+  # Create an emergency file
+  echo "Creating emergency Repository.py..."
+  echo 'from flask import Flask, jsonify
+import os
+app = Flask(__name__)
+@app.route("/")
+def hello():
+    return jsonify({"status": "OK", "message": "Emergency Flask server is running"})
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))' > frontend/backend/Repository.py
+fi
+
+if [ -f frontend/backend/server.js.railway ]; then
+  echo "✅ Found server.js.railway"
+  echo "Copying Railway-specific server.js..."
+  cp -f frontend/backend/server.js.railway frontend/backend/server.js
+  if [ $? -eq 0 ]; then
+    echo "✅ Successfully copied server.js.railway to server.js"
+  else
+    echo "❌ Error copying server.js.railway"
+    # Create an emergency backup
+    echo "Creating emergency server.js..."
+    echo 'const express = require("express");
+const app = express();
+const PORT = process.env.PORT || 3000;
+app.get("/", (req, res) => {
+  res.json({ status: "OK", message: "Emergency Node.js server is running" });
+});
+app.listen(PORT, () => console.log(`Emergency server listening on port ${PORT}`));' > frontend/backend/server.js
+  fi
+else
+  echo "⚠️ Warning: server.js.railway not found"
+  echo "Contents of frontend/backend:"
+  ls -la frontend/backend/ || echo "Could not list directory"
+  # Create an emergency file
+  echo "Creating emergency server.js..."
+  echo 'const express = require("express");
+const app = express();
+const PORT = process.env.PORT || 3000;
+app.get("/", (req, res) => {
+  res.json({ status: "OK", message: "Emergency Node.js server is running" });
+});
+app.listen(PORT, () => console.log(`Emergency server listening on port ${PORT}`));' > frontend/backend/server.js
+fiation starts in Railway
+set -euo pipefail  # More strict error handling
+
+# Set up environment
+echo "===== RAILWAY DEPLOYMENT SETUP ====="
+echo "Setting up environment for Railway deployment..."
+
+# Debug info
+echo "Current directory: $(pwd)"
+echo "Directory listing:"
+ls -la
+
+# Make sure all needed directories exist
+mkdir -p frontend/backend/uploads
+echo "✅ Created uploads directory"
+
+# Check for required files
+echo "Checking for required deployment files..."
+if [ ! -d "frontend" ]; then
+  echo "❌ ERROR: frontend directory does not exist! Current directory:"
+  pwd
+  ls -la
+  exit 1
+fi
+
+if [ ! -d "frontend/backend" ]; then
+  echo "❌ ERROR: frontend/backend directory does not exist!"
+  ls -la frontend/
+  exit 1
+fi
+
+# Check if Railway-specific files exist
+if [ ! -f frontend/backend/Repository.py.railway ]; then
+  echo "❌ ERROR: frontend/backend/Repository.py.railway does not exist!"
+  echo "Contents of frontend/backend:"
+  ls -la frontend/backend/
+  exit 1
+fi
+
+if [ ! -f frontend/backend/server.js.railway ]; then
+  echo "ERROR: frontend/backend/server.js.railway does not exist!"
+  echo "Contents of frontend/backend:"
+  ls -la frontend/backend/
+  exit 1
+fi
+
+# Copy Railway-specific files with directory conflict resolution
+echo "Copying Railway-specific Repository.py..."
+# Check if target is a directory, which would cause "Is a directory" error
+if [ -d frontend/backend/Repository.py ]; then
+  echo "⚠️ Repository.py exists as a directory - renaming it to avoid conflicts"
+  mv frontend/backend/Repository.py frontend/backend/Repository.py_dir_backup_$(date +%s)
+fi
+cp -f frontend/backend/Repository.py.railway frontend/backend/Repository.py
+
+echo "Copying Railway-specific server.js..."
+# Check if target is a directory, which would cause "Is a directory" error
+if [ -d frontend/backend/server.js ]; then
+  echo "⚠️ server.js exists as a directory - renaming it to avoid conflicts"
+  mv frontend/backend/server.js frontend/backend/server.js_dir_backup_$(date +%s)
+fi
+cp -f frontend/backend/server.js.railway frontend/backend/server.js
+
+# Print debug info
+echo "Deployment environment: SQL Server mode"
+echo "Current directory: $(pwd)"
+echo "Backend directory contents:"
+ls -la frontend/backend/
+
+# Check if requirements.txt exists and is not empty
+if [ ! -s frontend/backend/requirements.txt ]; then
+  echo "WARNING: requirements.txt is empty or does not exist!"
+  echo "Creating minimal requirements.txt..."
+  cat > frontend/backend/requirements.txt << EOF
+flask==2.2.3
+pyodbc==4.0.39
+sqlalchemy==2.0.7
+psycopg2-binary==2.9.6
+python-dotenv==1.0.0
+jwt==1.3.1
+pyjwt==2.6.0
+cryptography==40.0.1
+werkzeug==2.2.3
+gunicorn==21.2.0
+EOF
+  echo "Created requirements.txt with basic dependencies"
+fi
+
+# Set permissions
+echo "Setting execute permissions on scripts"
+chmod +x frontend/backend/init_railway_db.py 2>/dev/null || echo "Warning: Could not set permissions on init_railway_db.py"
+chmod +x frontend/backend/docker-entrypoint.sh 2>/dev/null || echo "Warning: Could not set permissions on docker-entrypoint.sh"
+
+# Print environment information
+echo "Railway environment: $RAILWAY_ENVIRONMENT"
+echo "Railway service: $RAILWAY_SERVICE_NAME"
+echo "Database host: $RAILWAY_DATABASE_HOST"
+
+# Test Python installation
+echo "Python version:"
+python --version
+echo "Pip version:"
+pip --version
+
+# Final checks
+echo "Checking if Repository.py exists:"
+if [ -f frontend/backend/Repository.py ]; then
+  echo "Repository.py exists and is ready"
+else
+  echo "ERROR: Repository.py does not exist after pre-deploy!"
+  exit 1
+fi
+
+# Success message
+echo "Pre-deployment setup completed successfully"

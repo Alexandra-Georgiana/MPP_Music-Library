@@ -1,12 +1,11 @@
 #!/bin/bash
-# Clean pre-deploy script for Railway deployment
-# Handles directory conflicts and prepares environment
+# Robust pre-deploy script to handle directory conflicts during Railway deployment
 
 set -e
 
 echo "===== RAILWAY PRE-DEPLOYMENT SETUP ====="
 
-# Function to handle path conflicts
+# Function to handle path conflicts more aggressively
 handle_path_conflict() {
   local path="$1"
   echo "Checking path: $path"
@@ -29,22 +28,41 @@ handle_path_conflict() {
   fi
 }
 
-# Check and fix the 'app' directory issue
-echo "Checking for potential 'app' directory conflicts..."
-if [ -d "app" ]; then
-  echo "WARNING: Found 'app' directory which conflicts with Nixpacks output!"
-  timestamp=$(date +%s)
-  mv "app" "app_backup_${timestamp}"
-  echo "[OK] Renamed 'app' directory to app_backup_${timestamp}"
-fi
+# Check for app directory at various levels - Railway's Nixpacks uses these paths
+echo "Checking for Nixpacks output directory conflicts..."
 
-# Check key paths for conflicts
-handle_path_conflict "frontend/backend/Repository.py"
-handle_path_conflict "frontend/backend/server.js"
+# Handle conflicting app directories at all potential paths
+APP_PATHS=(
+  "app"
+  "./app"
+  "/app"
+  "dist/app"
+  "./dist/app"
+  "dist"
+  "./dist"
+  "dist_railway"
+  "./dist_railway"
+  "/tmp/nixpacks/app"
+  "/opt/build/repo/app"
+)
+
+for app_path in "${APP_PATHS[@]}"; do
+  if [ -d "$app_path" ]; then
+    timestamp=$(date +%s)
+    echo "WARNING: Found directory at $app_path which may conflict with Nixpacks output!"
+    mv "$app_path" "${app_path}_backup_${timestamp}"
+    echo "[OK] Renamed $app_path to ${app_path}_backup_${timestamp}"
+  fi
+done
 
 # Create necessary directories
 echo "Creating required directories..."
 mkdir -p frontend/backend/uploads
+
+# Check key paths for conflicts
+handle_path_conflict "frontend/backend/Repository.py"
+handle_path_conflict "frontend/backend/server.js"
+handle_path_conflict "railway-up-clean.js"
 
 # Copy Railway-specific configuration files
 echo "Setting up Railway-specific files..."
