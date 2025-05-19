@@ -1,0 +1,20 @@
+[build]
+nixpkgsFile = "nixpkgs.json"
+
+[phases.setup]
+nixPkgs = ["nodejs", "python39", "python39Packages.pip", "unixODBC", "curl"]
+
+[phases.install]
+cmds = [
+  "cd frontend/backend && pip install -r requirements.txt",
+  "cd frontend/backend && npm install",
+  "cd frontend && npm install"
+]
+
+[phases.build]
+cmds = [
+  "cd frontend && npm run build"
+]
+
+[start]
+cmd = "cd frontend/backend && python Repository.py & cd frontend/backend && node server.js & cd frontend && npm run preview"

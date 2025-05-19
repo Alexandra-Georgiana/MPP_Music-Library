@@ -1,0 +1,22 @@
+FROM node:18-slim
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the application
+COPY . .
+
+# Create necessary directories
+RUN mkdir -p uploads
+RUN mkdir -p certs
+
+# Expose HTTPS port
+EXPOSE 3000
+
+# Run the HTTPS version of the application
+CMD ["node", "server.js.https"]

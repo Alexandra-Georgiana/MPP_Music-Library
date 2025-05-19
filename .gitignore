@@ -1,0 +1,59 @@
+# Node.js files
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+.pnpm-debug.log
+
+# Python files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+env/
+.env
+.env.local
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Local development
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# SSL Certificates (don't commit these to git!)
+certs/
+*.pem
+*.key
+*.crt
+*.pfx
+*.cert
+
+# Railway specific
+.railway/output/
+.nixpacks/
+
+# Others
+.vercel
+.netlify
