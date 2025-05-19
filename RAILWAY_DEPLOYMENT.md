@@ -21,6 +21,17 @@ This document explains how to deploy the Music Player Project to Railway.
    railway run python frontend/backend/init_railway_db.py
    ```
 
+## Full-Stack Deployment
+
+This project is configured as a full-stack deployment on Railway, including:
+
+1. **Frontend**: React application hosted as a static site
+2. **Flask Backend**: Python API service
+3. **Node.js Backend**: JavaScript API service  
+4. **SQL Server**: Database service (Docker container)
+
+All services are automatically connected and can communicate with each other via Railway's built-in service networking.
+
 ### Option 2: Continuous Deployment with GitHub
 
 1. Push your project to GitHub.
