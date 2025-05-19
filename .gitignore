@@ -57,3 +57,8 @@ certs/
 # Others
 .vercel
 .netlify
+
+frontend/backend/uploads/
+frontend/uploads/
+__pycache__/
+*.pyc
