@@ -9,6 +9,25 @@ console.log('Environment:', process.env.NODE_ENV);
 console.log('Railway Environment:', process.env.RAILWAY_ENVIRONMENT);
 console.log('Current Directory:', __dirname);
 
+// Copy the Railway-specific version of Repository.py if in Railway environment
+if (process.env.RAILWAY_ENVIRONMENT) {
+    const backendDir = path.join(__dirname, 'frontend', 'backend');
+    const sourceFile = path.join(backendDir, 'Repository.py.railway');
+    const targetFile = path.join(backendDir, 'Repository.py');
+    
+    if (fs.existsSync(sourceFile)) {
+        console.log('Copying Railway-specific Repository.py...');
+        try {
+            fs.copyFileSync(sourceFile, targetFile);
+            console.log('Successfully copied Repository.py.railway to Repository.py');
+        } catch (error) {
+            console.error('Error copying Repository.py.railway:', error.message);
+        }
+    } else {
+        console.warn('Repository.py.railway not found, using existing Repository.py');
+    }
+}
+
 // Determine which service to start based on env vars or args
 const args = process.argv.slice(2);
 const isWorker = args.includes('worker') || process.env.RAILWAY_SERVICE_NAME === 'worker';

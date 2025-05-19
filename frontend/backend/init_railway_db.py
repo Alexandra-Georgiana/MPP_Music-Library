@@ -10,13 +10,8 @@ def wait_for_db():
     # Check if we're on Railway
     is_railway = os.environ.get('RAILWAY_ENVIRONMENT') is not None
     
-    # Determine if we're using PostgreSQL or SQL Server
-    has_postgres = os.environ.get('DATABASE_URL') and 'postgres' in os.environ.get('DATABASE_URL')
-    
-    if is_railway and has_postgres:
-        return wait_for_postgres()
-    else:
-        return wait_for_sqlserver()
+    # Always use SQL Server for this project
+    return wait_for_sqlserver()
 
 def wait_for_postgres():
     """Wait for PostgreSQL to be ready"""
@@ -82,9 +77,15 @@ def wait_for_sqlserver():
         subprocess.check_call([sys.executable, "-m", "pip", "install", "pyodbc"])
         import pyodbc
     
+    # Get SQL Server connection parameters from environment or use defaults
+    server = os.environ.get('SQLSERVER_HOST', 'sqlserver')
+    user = os.environ.get('SQLSERVER_USER', 'sa')
+    password = os.environ.get('SQLSERVER_PASSWORD', 'StrongPassword123!')
+    
     while retry_count < max_retries:
         try:
-            conn_str = "Driver={ODBC Driver 17 for SQL Server};Server=sqlserver;Database=master;UID=sa;PWD=StrongPassword123!"
+            conn_str = f"Driver={{ODBC Driver 17 for SQL Server}};Server={server};Database=master;UID={user};PWD={password}"
+            print(f"Trying to connect to SQL Server at {server}...")
             conn = pyodbc.connect(conn_str)
             conn.close()
             print("SQL Server is ready!")
@@ -100,22 +101,30 @@ def wait_for_sqlserver():
 def init_database():
     """Initialize the database with schema and data"""
     
+    # Import pyodbc here to ensure it's available
+    import pyodbc
+    
+    # Get SQL Server connection parameters from environment or use defaults
+    server = os.environ.get('SQLSERVER_HOST', 'sqlserver')
+    user = os.environ.get('SQLSERVER_USER', 'sa')
+    password = os.environ.get('SQLSERVER_PASSWORD', 'StrongPassword123!')
+    
     # Create database
     try:
-        conn_str = "Driver={ODBC Driver 17 for SQL Server};Server=sqlserver;Database=master;UID=sa;PWD=StrongPassword123!"
+        conn_str = f"Driver={{ODBC Driver 17 for SQL Server}};Server={server};Database=master;UID={user};PWD={password}"
         conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
         print("Creating MusicLibrary database...")
         cursor.execute("IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'MusicLibrary') CREATE DATABASE MusicLibrary")
         conn.commit()
         conn.close()
-        
-        # Apply schema from init.sql
+          # Apply schema from init.sql
         print("Applying database schema...")
         with open("init.sql", "r") as sql_file:
             sql_script = sql_file.read()
             
-        conn = pyodbc.connect(f"{conn_str.replace('Database=master', 'Database=MusicLibrary')}")
+        conn_str = f"Driver={{ODBC Driver 17 for SQL Server}};Server={server};Database=MusicLibrary;UID={user};PWD={password}"
+        conn = pyodbc.connect(conn_str)
         cursor = conn.cursor()
         
         # Split and execute SQL commands

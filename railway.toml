@@ -14,7 +14,12 @@ rootDirectory = "frontend/backend"
 buildCommand = "pip install -r requirements.txt"
 startCommand = "python Repository.py"
 envVars = [
-  { name = "FLASK_ENV", value = "production" }
+  { name = "FLASK_ENV", value = "production" },
+  { name = "RAILWAY_ENVIRONMENT", value = "production" },
+  { name = "RAILWAY_DATABASE_HOST", value = "${{ RAILWAY_SERVICE_SQLSERVER_HOST }}" },
+  { name = "RAILWAY_DATABASE_USER", value = "sa" },
+  { name = "RAILWAY_DATABASE_PASSWORD", value = "StrongPassword123!" },
+  { name = "RAILWAY_DATABASE_PORT", value = "1433" }
 ]
 port = 5000
 
@@ -25,7 +30,12 @@ rootDirectory = "frontend/backend"
 buildCommand = "npm install"
 startCommand = "node server.js"
 envVars = [
-  { name = "NODE_ENV", value = "production" }
+  { name = "NODE_ENV", value = "production" },
+  { name = "RAILWAY_ENVIRONMENT", value = "production" },
+  { name = "RAILWAY_DATABASE_HOST", value = "${{ RAILWAY_SERVICE_SQLSERVER_HOST }}" },
+  { name = "RAILWAY_DATABASE_USER", value = "sa" },
+  { name = "RAILWAY_DATABASE_PASSWORD", value = "StrongPassword123!" },
+  { name = "RAILWAY_DATABASE_PORT", value = "1433" }
 ]
 port = 3000
 

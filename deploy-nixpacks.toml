@@ -1,0 +1,35 @@
+# deploy-nixpacks.toml
+# This configures Nixpacks for Railway deployment
+
+[phases.setup]
+nixPkgs = [
+  "nodejs_18",
+  "python39",
+  "python39Packages.pip",
+  "unixODBC",
+  "unixODBCDrivers.msodbcsql17",
+  "curl"
+]
+
+[phases.install]
+cmds = [
+  "npm install",
+  "cd frontend && npm install",
+  "cd ../frontend/backend && npm install",
+  "cd ../frontend/backend && pip install -r requirements.txt"
+]
+
+[phases.build]
+cmds = [
+  "cd frontend && npm run build"
+]
+
+[phases.setup.env]
+PYTHONUNBUFFERED = "1"
+
+[start]
+cmd = "npm start"
+
+[processes]
+web = "cd frontend/backend && python Repository.py"
+worker = "cd frontend/backend && node server.js"
