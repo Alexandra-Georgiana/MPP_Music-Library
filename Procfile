@@ -1,2 +1,3 @@
-web: cd frontend/backend && python Repository.py
-worker: cd frontend/backend && node server.js
+web: npm start
+worker: npm run worker
+release: cd frontend/backend && python init_railway_db.py

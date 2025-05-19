@@ -2,10 +2,10 @@
   "version": 2,
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": ""
+    "buildCommand": "npm install && cd frontend && npm install && cd ../frontend/backend && npm install && pip install -r requirements.txt"
   },
   "deploy": {
-    "startCommand": "cd frontend/backend && python Repository.py",
+    "startCommand": "npm start",
     "healthcheckPath": "/",
     "healthcheckTimeout": 100,
     "restartPolicyType": "ON_FAILURE",

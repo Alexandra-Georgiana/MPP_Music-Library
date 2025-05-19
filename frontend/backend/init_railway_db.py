@@ -2,14 +2,85 @@
 
 import os
 import time
-import pyodbc
 import subprocess
+import sys
 
 def wait_for_db():
-    """Wait for the SQL Server database to become available"""
+    """Wait for the database to become available"""
+    # Check if we're on Railway
+    is_railway = os.environ.get('RAILWAY_ENVIRONMENT') is not None
+    
+    # Determine if we're using PostgreSQL or SQL Server
+    has_postgres = os.environ.get('DATABASE_URL') and 'postgres' in os.environ.get('DATABASE_URL')
+    
+    if is_railway and has_postgres:
+        return wait_for_postgres()
+    else:
+        return wait_for_sqlserver()
+
+def wait_for_postgres():
+    """Wait for PostgreSQL to be ready"""
+    print("Waiting for PostgreSQL to be ready...")
+    max_retries = 30
+    retry_count = 0
+    
+    # Get the database URL from the environment
+    db_url = os.environ.get('DATABASE_URL')
+    
+    if not db_url:
+        print("No DATABASE_URL environment variable found. Cannot connect to PostgreSQL.")
+        return False
+    
+    # Try to install psycopg2 if not already installed
+    try:
+        import psycopg2
+    except ImportError:
+        print("Installing psycopg2...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "psycopg2-binary"])
+        import psycopg2
+    
+    while retry_count < max_retries:
+        try:
+            # Parse the DATABASE_URL to get connection parameters
+            import re
+            match = re.match(r'postgres://(.*):(.*)@(.*):(\d+)/(.*)', db_url)
+            if match:
+                user, password, host, port, dbname = match.groups()
+                conn = psycopg2.connect(
+                    dbname=dbname,
+                    user=user,
+                    password=password,
+                    host=host,
+                    port=port
+                )
+                conn.close()
+                print("PostgreSQL is ready!")
+                return True
+            else:
+                print(f"Could not parse DATABASE_URL: {db_url}")
+                return False
+        except Exception as e:
+            retry_count += 1
+            print(f"PostgreSQL not ready yet. Retrying in 5 seconds... (Attempt {retry_count} of {max_retries})")
+            print(f"Error: {e}")
+            time.sleep(5)
+    
+    print("Failed to connect to PostgreSQL.")
+    return False
+
+def wait_for_sqlserver():
+    """Wait for SQL Server to become available"""
     print("Waiting for SQL Server to be ready...")
     max_retries = 30
     retry_count = 0
+    
+    # Try to install pyodbc if not already installed
+    try:
+        import pyodbc
+    except ImportError:
+        print("Installing pyodbc...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "pyodbc"])
+        import pyodbc
     
     while retry_count < max_retries:
         try:
@@ -18,7 +89,7 @@ def wait_for_db():
             conn.close()
             print("SQL Server is ready!")
             return True
-        except:
+        except Exception as e:
             retry_count += 1
             print(f"SQL Server not ready yet. Retrying in 5 seconds... (Attempt {retry_count} of {max_retries})")
             time.sleep(5)

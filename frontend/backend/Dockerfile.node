@@ -1,5 +1,12 @@
 FROM node:18-slim
 
+# Set up locale for Node.js
+RUN apt-get update && apt-get install -y locales && rm -rf /var/lib/apt/lists/* \
+    && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
+
 WORKDIR /app
 
 # Copy package files
@@ -18,5 +25,5 @@ RUN mkdir -p certs
 # Expose HTTPS port
 EXPOSE 3000
 
-# Run the HTTPS version of the application
-CMD ["node", "server.js.https"]
+# Run the application (Railway will use server.js.railway)
+CMD ["node", "server.js"]

@@ -17,4 +17,8 @@ cmds = [
 ]
 
 [start]
-cmd = "cd frontend/backend && python Repository.py & cd frontend/backend && node server.js & cd frontend && npm run preview"
+cmd = "npm start"
+
+[processes]
+web = "npm run web"
+worker = "npm run worker"

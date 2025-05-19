@@ -1,7 +1,5 @@
 # filepath: d:\MPP\frontend\backend\Repository.py.railway
 from flask import Flask, request, jsonify, render_template
-import pyodbc
-from monitor_thread import monitor_comments
 import datetime
 from functools import wraps
 import jwt as pyjwt  # Rename to avoid confusion
@@ -14,6 +12,19 @@ import os
 from dotenv import load_dotenv
 import ssl
 
+# Import appropriate database driver based on environment
+is_railway = os.getenv('RAILWAY_ENVIRONMENT') is not None
+use_pg = os.getenv('USE_PG_ADAPTER', 'false').lower() == 'true' or is_railway
+db_type = os.getenv('DB_TYPE', 'postgresql' if is_railway else 'sqlserver')
+
+if use_pg or db_type == 'postgresql':
+    import psycopg2
+    from sqlalchemy import create_engine, text
+    from sqlalchemy.exc import SQLAlchemyError
+else:
+    import pyodbc
+    from monitor_thread import monitor_comments
+
 app = Flask(__name__)
 load_dotenv()  # Load environment variables
 
@@ -22,25 +33,33 @@ GMAIL_USER = os.getenv('GMAIL_USER', 'your-email@gmail.com')
 GMAIL_APP_PASSWORD = os.getenv('GMAIL_APP_PASSWORD', 'your-app-password')
 
 # Determine environment and get connection string
-is_railway = os.getenv('RAILWAY_ENVIRONMENT') is not None
 use_https = os.getenv('USE_HTTPS', 'false').lower() == 'true'
 
-# Use either Railway provided DATABASE_URL or our default
-if is_railway:
-    # Parse Railway's DATABASE_URL and format it for pyodbc
-    db_url = os.getenv('DATABASE_URL', '')
-    if db_url:
-        # Railway might provide a connection string, we need to adapt it
-        # This is a simplified version, you might need to adjust based on what Railway provides
-        sql_host = os.getenv('RAILWAY_DATABASE_HOST', 'sqlserver')
-        sql_user = os.getenv('RAILWAY_DATABASE_USER', 'sa')
-        sql_password = os.getenv('RAILWAY_DATABASE_PASSWORD', 'StrongPassword123!')
-        sql_port = os.getenv('RAILWAY_DATABASE_PORT', '1433')
+# Configure database connection based on environment
+if use_pg or db_type == 'postgresql':
+    # PostgreSQL connection (Railway)
+    pg_host = os.getenv('PGHOST', 'localhost')
+    pg_db = os.getenv('PGDATABASE', 'postgres')
+    pg_user = os.getenv('PGUSER', 'postgres')
+    pg_password = os.getenv('PGPASSWORD', 'postgres')
+    pg_url = os.getenv('DATABASE_URL', f'postgresql://{pg_user}:{pg_password}@{pg_host}/{pg_db}')
+    
+    # Create connection string for SQLAlchemy
+    SQL_SERVER_CONNECTION_STRING = pg_url
+    
+    # Print connection details for debugging
+    print(f"Using PostgreSQL connection: host={pg_host}, db={pg_db}, user={pg_user}")
+else:
+    # SQL Server connection (Local/Docker)
+    sql_host = os.getenv('RAILWAY_DATABASE_HOST', 'sqlserver')
+    sql_user = os.getenv('RAILWAY_DATABASE_USER', 'sa')
+    sql_password = os.getenv('RAILWAY_DATABASE_PASSWORD', 'StrongPassword123!')
+    sql_port = os.getenv('RAILWAY_DATABASE_PORT', '1433')
+    
+    if is_railway:
         SQL_SERVER_CONNECTION_STRING = f'mssql+pyodbc://{sql_user}:{sql_password}@{sql_host}:{sql_port}/MusicLibrary?driver=ODBC+Driver+17+for+SQL+Server'
     else:
-        SQL_SERVER_CONNECTION_STRING = 'mssql+pyodbc://sa:StrongPassword123!@sqlserver:1433/MusicLibrary?driver=ODBC+Driver+17+for+SQL+Server'
-else:
-    SQL_SERVER_CONNECTION_STRING = os.getenv('SQL_SERVER_CONNECTION_STRING', 
+        SQL_SERVER_CONNECTION_STRING = os.getenv('SQL_SERVER_CONNECTION_STRING', 
                                          'mssql+pyodbc://sa:StrongPassword123!@database:1433/MusicLibrary?driver=ODBC+Driver+17+for+SQL+Server')
 
 # Certificate paths

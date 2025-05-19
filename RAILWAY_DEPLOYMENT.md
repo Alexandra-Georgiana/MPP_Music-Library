@@ -7,18 +7,30 @@ This document explains how to deploy the Music Player Project to Railway.
 ### Option 1: Using the Railway CLI (Recommended for Initial Setup)
 
 1. Make sure you have the Railway CLI installed:
-   ```
+   ```powershell
    npm i -g @railway/cli
    ```
 
-2. Run the deployment script:
+2. Run the deployment script with PostgreSQL support (recommended for Railway):
+   ```powershell
+   .\setup-railway-sql.ps1
    ```
+
+3. Initialize the PostgreSQL database after deployment:
+   ```powershell
+   npx railway run python frontend/backend/pg_adapter.py
+   ```
+
+### Option 2: Manual Deployment with SQL Server
+
+1. Run the Railway deployment script:
+   ```powershell
    .\railway-deploy.ps1
    ```
 
-3. Initialize the database after deployment:
-   ```
-   railway run python frontend/backend/init_railway_db.py
+2. Initialize the SQL Server database after deployment:
+   ```powershell
+   npx railway run python frontend/backend/init_railway_db.py
    ```
 
 ## Full-Stack Deployment
@@ -28,7 +40,7 @@ This project is configured as a full-stack deployment on Railway, including:
 1. **Frontend**: React application hosted as a static site
 2. **Flask Backend**: Python API service
 3. **Node.js Backend**: JavaScript API service  
-4. **SQL Server**: Database service (Docker container)
+4. **Database**: PostgreSQL database service (recommended) or SQL Server
 
 All services are automatically connected and can communicate with each other via Railway's built-in service networking.
 
