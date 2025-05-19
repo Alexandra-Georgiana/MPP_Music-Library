@@ -1,0 +1,6 @@
+# filepath: d:\MPP\frontend\railway.json
+{
+  "version": 2,
+  "buildCommand": "npm install && npm run build",
+  "staticBuildPath": "dist"
+}
