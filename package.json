@@ -1,6 +1,21 @@
 {
+  "name": "music-player-platform",
+  "version": "1.0.0",
+  "description": "Music Player Platform with React frontend and Node/Flask backend",
+  "scripts": {
+    "start": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "deploy": "netlify deploy --prod",
+    "backend:node": "cd frontend/backend && node server.js",
+    "backend:flask": "cd frontend/backend && python Repository.py",
+    "setup:azure": "powershell -ExecutionPolicy Bypass -File setup-azure.ps1",
+    "deploy:azure": "powershell -ExecutionPolicy Bypass -File deploy-to-azure.ps1"
+  },
   "dependencies": {
     "react-draggable": "^4.4.6",
     "react-icons": "^5.5.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
   }
 }
