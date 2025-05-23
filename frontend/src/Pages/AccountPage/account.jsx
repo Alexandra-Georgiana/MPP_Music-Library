@@ -5,6 +5,7 @@ import AvatarDrk from '../../assets/user-avatar-dark.png'
 import './index.css'
 import { useNavigate } from 'react-router-dom'
 import { getToken, clearAuthData } from '../../utils/auth'
+import config from '../../config';
 
 const Account = () => {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ const Account = () => {
 
       // First verify the token
       console.log('Verifying token...');
-      const verifyResponse = await fetch('http://localhost:3000/api/verify-token', {
+      const verifyResponse = await fetch('/api/verify-token', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -60,7 +61,7 @@ const Account = () => {
 
       // Then fetch profile data
       console.log('Fetching profile data...');
-      const response = await fetch('http://localhost:3000/api/profile', {
+      const response = await fetch('/api/profile', {
         headers: {
           'Authorization': `Bearer ${token}`
         }

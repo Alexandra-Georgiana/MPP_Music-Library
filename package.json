@@ -1,31 +1,16 @@
 {
-  "name": "music-player-platform",
+  "name": "music-player-project",
   "version": "1.0.0",
-  "description": "Music Player Platform with React frontend and Node/Flask backend",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "frontend",
+    "frontend/backend"
+  ],
   "scripts": {
-    "start": "node railway-up.js",
+    "dev": "cd frontend && npm run dev",
     "build": "cd frontend && npm run build",
-    "deploy": "netlify deploy --prod",
-    "backend:node": "cd frontend/backend && node server.js",
-    "backend:flask": "cd frontend/backend && python Repository.py",
-    "setup:azure": "powershell -ExecutionPolicy Bypass -File setup-azure.ps1",
-    "deploy:azure": "powershell -ExecutionPolicy Bypass -File deploy-to-azure.ps1",
-    "railway:deploy": "railway up",
-    "railway:init-db": "railway run python frontend/backend/init_railway_db.py",
-    "worker": "node railway-up.js worker",
-    "web": "node railway-up.js",
-    "postinstall": "cd frontend && npm install && cd ../frontend/backend && npm install && pip install -r requirements.txt"
-  },
-  "dependencies": {
-    "react-draggable": "^4.4.6",
-    "react-icons": "^5.5.0",
-    "express": "^4.18.2"
-  },
-  "devDependencies": {
-    "netlify-cli": "^17.0.0"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
+    "start": "cd frontend/backend && npm start",
+    "test": "cd frontend && npm test"
   }
 }

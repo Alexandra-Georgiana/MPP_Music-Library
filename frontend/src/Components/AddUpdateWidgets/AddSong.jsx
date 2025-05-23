@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import Draggable from "react-draggable";
 import { X } from "lucide-react";
 import "./index.css";
+import config from '../../config';
 
 const AddSong = ({ setAddSong, songs, setSongs }) => {
   const nodeRef = useRef(null);
@@ -40,7 +41,7 @@ const AddSong = ({ setAddSong, songs, setSongs }) => {
       formData.append('albumCover', imageFile);
       formData.append('audioFile', audioFile);
 
-      const response = await fetch('http://localhost:3000/api/addSong', {
+      const response = await fetch('/api/addSong', {
         method: 'POST',
         body: formData,
       });
@@ -54,7 +55,7 @@ const AddSong = ({ setAddSong, songs, setSongs }) => {
       alert(result.message || 'Song added successfully!');
       
       // Refresh the songs list
-      const songsResponse = await fetch('http://localhost:3000/api/songs');
+      const songsResponse = await fetch('/api/songs');
       if (songsResponse.ok) {
         const updatedSongs = await songsResponse.json();
         setSongs(updatedSongs);

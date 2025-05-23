@@ -41,6 +41,28 @@ try {
         Write-ColorMessage "No top-level 'app' directory found." "Green"
     }
 
+    # STEP 1.1: Recursively check for 'app' directories in subdirectories
+    Write-ColorMessage "STEP 1.1: Checking for 'app' directories in subdirectories..." "Yellow"
+
+    # Define a function to handle subdirectory conflicts
+    function Rename-AppDirectories {
+        param (
+            [string]$RootPath
+        )
+
+        Get-ChildItem -Path $RootPath -Recurse -Directory -Filter "app" | ForEach-Object {
+            $timestamp = Get-Date -Format "yyyyMMddHHmmss"
+            $newName = "app_folder_$timestamp"
+            Write-ColorMessage "Found 'app' directory at $($_.FullName)!" "Red"
+            Write-ColorMessage "Renaming to '$newName'..." "Yellow"
+            Rename-Item -Path $_.FullName -NewName $newName -Force
+            Write-ColorMessage "[OK] Directory renamed successfully" "Green"
+        }
+    }
+
+    # Call the function for the project root
+    Rename-AppDirectories -RootPath "."
+
     # STEP 2: Deploy to Railway
     Write-ColorMessage "STEP 2: Deploying to Railway..." "Yellow"
     railway up

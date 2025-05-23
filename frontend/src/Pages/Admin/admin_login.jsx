@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import bcrypt from 'bcryptjs';
+import config from '../../config';
 
 const AdminLogin = () => {
     const navigate = useNavigate();
@@ -16,7 +17,7 @@ const AdminLogin = () => {
     try {
         console.log('Sending request to /api/admin/login with email:', email);
         // Make the API request to the Flask server
-        const response = await fetch('http://localhost:3000/api/admin/login', {
+        const response = await fetch('/api/admin/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

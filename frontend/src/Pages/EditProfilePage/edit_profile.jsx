@@ -4,6 +4,7 @@ import User_light from '../../assets/user-avatar-light.png';
 import './index.css';
 import { useNavigate } from 'react-router-dom';
 import { getToken, setToken } from '../../utils/auth';
+import config from '../../config';
 
 const EditProfile = () => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const EditProfile = () => {
           return;
         }
   
-        const response = await fetch('http://localhost:3000/api/profile', {
+        const response = await fetch('/api/profile', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -75,7 +76,7 @@ const EditProfile = () => {
         formData.append('avatar', selectedImage);
       }
 
-      const response = await fetch('http://localhost:3000/api/update', {
+      const response = await fetch('/api/update', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

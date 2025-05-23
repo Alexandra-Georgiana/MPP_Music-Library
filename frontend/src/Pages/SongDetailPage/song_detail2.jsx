@@ -7,6 +7,7 @@ import Review from '../../Components/ReviewWidget/Review.jsx';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../../utils/auth';
 import './index.css';
+import config from '../../config';
 
 const SongDetails2 = () => {
   const navigate = useNavigate();
@@ -74,7 +75,7 @@ const SongDetails2 = () => {
         setLoading(true);
 
         // Pass offset and limit as query parameters
-        const response = await fetch(`http://localhost:3000/api/songs?offset=${offset}&limit=${limit}`, {
+        const response = await fetch(`/api/songs?offset=${offset}&limit=${limit}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -115,14 +116,14 @@ const fetchMoreSongs = () => {
 
   const getSongDetails = async (trackId) => {
     try {
-        const response = await fetch(`http://localhost:3000/api/songs/${trackId}`); // Use the /songs/{id} endpoint
+        const response = await fetch(`/api/songs/${trackId}`); // Use the /songs/{id} endpoint
         if (!response.ok) {
             console.error('Error fetching song details:', response.status, response.statusText);
             throw new Error(`Failed to fetch song details: ${response.status} ${response.statusText}`);
         }
         const data = await response.json();
         setSong(data); // Set the fetched song details
-        const response1 = await fetch(`http://localhost:3000/api/songs/details/${trackId}`);
+        const response1 = await fetch(`/api/songs/details/${trackId}`);
         if (!response1.ok) {
             console.error('Error fetching song details:', response1.status, response1.statusText);
             throw new Error(`Failed to fetch song details: ${response1.status} ${response1.statusText}`);
@@ -152,7 +153,7 @@ if (!song) {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/songs/like', {
+      const response = await fetch('/api/songs/like', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

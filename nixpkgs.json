@@ -1,6 +1,0 @@
-{
-  "nodejs": "18.16.0",
-  "python": "3.9.16",
-  "unixODBC": "2.3.11",
-  "curl": "latest"
-}

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import config from '../../config';
 
 const MonitoredUsers = () => {
   const [monitoredUsers, setMonitoredUsers] = useState([]);
@@ -8,7 +9,7 @@ const MonitoredUsers = () => {
   useEffect(() => {
     const fetchMonitoredUsers = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/monitoredUsers');
+        const response = await fetch('/api/monitoredUsers');
         if (!response.ok) {
           throw new Error('Failed to fetch monitored users');
         }

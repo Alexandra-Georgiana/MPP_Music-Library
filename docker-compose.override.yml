@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  node-backend:
+    environment:
+      - NODE_ENV=development
+      - FLASK_API_URL=http://localhost:5000
+      - NODE_API_URL=http://localhost:3000
+    ports:
+      - "3000:3000"
+
+  flask-backend:
+    environment:
+      - FLASK_ENV=development
+    ports:
+      - "5000:5000"
+
+  sqlserver:
+    ports:
+      - "1433:1433"

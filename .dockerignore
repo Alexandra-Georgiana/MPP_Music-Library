@@ -1,0 +1,30 @@
+# Version control
+.git
+
+# Dependencies
+node_modules
+**/node_modules
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.*
+
+# Documentation
+*.md
+
+# Scripts
+*.ps1
+*.sh
+*.bat
+deploy-*
+
+# Keep essential files
+!frontend/dist
+!frontend/dist/**/*
+!Dockerfile
+!docker-compose*.yml

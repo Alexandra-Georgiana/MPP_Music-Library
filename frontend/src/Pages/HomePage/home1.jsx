@@ -3,6 +3,7 @@ import Heather from '../../Components/Headers/header.jsx'
 import Empty from '../../assets/empty.png'
 import './index.css'
 import { useNavigate } from 'react-router-dom'
+import config from '../../config';
 
 const home1 = () => {
   const navigate = useNavigate();
@@ -59,7 +60,7 @@ const home1 = () => {
       try {
           setLoading(true);
   
-          const response = await fetch(`http://localhost:3000/api/songs?offset=${customOffset}&limit=${limit}`, {
+          const response = await fetch(`/api/songs?offset=${customOffset}&limit=${limit}`, {
               method: 'GET',
               headers: {
                   'Content-Type': 'application/json',

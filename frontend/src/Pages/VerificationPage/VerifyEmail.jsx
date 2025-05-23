@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { setToken } from '../../utils/auth';
 import './VerifyEmail.css';
+import config from '../../config';
 
 const VerifyEmail = () => {
     const navigate = useNavigate();
@@ -75,7 +76,7 @@ const VerifyEmail = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:3000/api/verify-email', {
+            const response = await fetch('/api/verify-email', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -116,7 +117,7 @@ const VerifyEmail = () => {
         setError('');
 
         try {
-            const response = await fetch('http://localhost:3000/api/resend-verification', {
+            const response = await fetch('/api/resend-verification', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

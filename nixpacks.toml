@@ -1,24 +1,11 @@
-[build]
-nixpkgsFile = "nixpkgs.json"
-
 [phases.setup]
-nixPkgs = ["nodejs", "python39", "python39Packages.pip", "unixODBC", "curl"]
+nixPkgs = ['nodejs_18', 'npm-9_x']
 
 [phases.install]
-cmds = [
-  "cd frontend/backend && pip install -r requirements.txt",
-  "cd frontend/backend && npm install",
-  "cd frontend && npm install"
-]
+cmds = ['npm install']
 
 [phases.build]
-cmds = [
-  "cd frontend && npm run build"
-]
+cmds = ['npm run build']
 
 [start]
-cmd = "npm start"
-
-[processes]
-web = "npm run web"
-worker = "npm run worker"
+cmd = 'node server.js'

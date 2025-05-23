@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=MyStr0ngP@ssw0rd
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P MyStr0ngP@ssw0rd -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      retries: 10
+      start_period: 10s
+      timeout: 3s
+
+  flask-backend:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=mssql+pyodbc://sa:MyStr0ngP@ssw0rd@sqlserver:1433/MusicLibrary?driver=ODBC+Driver+17+for+SQL+Server
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  node-backend:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - FLASK_API_URL=http://flask-backend:5000
+    volumes:
+      - ./frontend/backend/uploads:/app/frontend/backend/uploads
+    depends_on:
+      - flask-backend  frontend:
+    build: 
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=http://node-backend:3000
+      - VITE_FLASK_API_URL=http://flask-backend:5000
+    depends_on:
+      - node-backend
+      - VITE_API_URL=http://node-backend:3000
+      - VITE_FLASK_API_URL=http://flask-backend:5000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - node-backend
+      - flask-backend
+
+volumes:
+  sqlserver_data:
+  uploads:

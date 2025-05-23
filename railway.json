@@ -1,17 +1,16 @@
 {
-  "": "https://railway.app/railway.schema.json",
+  "$schema": "https://railway.app/railway.schema.json",
   "build": {
-    "builder": "NIXPACKS",
-    "nixpacksConfigPath": "deploy-nixpacks.toml",
-    "buildCommand": "bash ./pre-deploy-clean2.sh"
-  },
-  "deploy": {
-    "numReplicas": 1,
-    "startCommand": "node railway-up-clean2.js",
-    "healthcheckPath": "/",
-    "healthcheckTimeout": 100,
+    "builder": "DOCKER",
+    "config": {
+      "COMPOSE_FILE": "./docker-compose.yml"
+    }
+  },  "deploy": {
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 5,
-    "sleepApplication": false
+    "healthcheckPath": "/api",
+    "healthcheckTimeout": 300,
+    "startCommand": "docker-compose up",
+    "numReplicas": 1
   }
 }

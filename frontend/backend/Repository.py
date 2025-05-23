@@ -11,6 +11,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
 from dotenv import load_dotenv
+import ssl
 
 app = Flask(__name__)
 load_dotenv()  # Load environment variables
@@ -19,8 +20,13 @@ load_dotenv()  # Load environment variables
 GMAIL_USER = os.getenv('GMAIL_USER', 'your-email@gmail.com')
 GMAIL_APP_PASSWORD = os.getenv('GMAIL_APP_PASSWORD', 'your-app-password')
 
-# Set your secret key for JWT - keep this very secure in production
-app.config['SECRET_KEY'] = 'admin-secret-key-change-this-in-production'
+# Setup HTTPS if enabled
+use_https = os.getenv('USE_HTTPS', 'false').lower() == 'true'
+CERT_FILE = os.getenv('SSL_CERT', './certs/certificate.crt')
+KEY_FILE = os.getenv('SSL_KEY', './certs/private.key')
+
+# Set your secret key for JWT from environment variable
+app.config['SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'admin-secret-key-change-this-in-production')
 
 def generate_admin_token(admin_id, email):
     expiration = datetime.datetime.utcnow() + datetime.timedelta(hours=24)  # Token expires in 24 hours
@@ -51,7 +57,32 @@ def admin_token_required(f):
         return f(*args, **kwargs)
     return decorated
 
-conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=USER\\MSSQLSERVER03;DATABASE=MusicLibrary;Trusted_Connection=yes;')
+# Get database connection details from environment variables
+def get_db_connection():
+    try:
+        is_railway = os.getenv('RAILWAY_ENVIRONMENT') is not None
+        
+        if is_railway:
+            # Railway SQL Server configuration
+            sql_host = os.getenv('RAILWAY_DATABASE_HOST', 'sqlserver')
+            sql_user = os.getenv('RAILWAY_DATABASE_USER', 'sa')
+            sql_password = os.getenv('RAILWAY_DATABASE_PASSWORD', 'StrongPassword123!')
+            sql_port = os.getenv('RAILWAY_DATABASE_PORT', '1433')
+            conn_str = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={sql_host},{sql_port};DATABASE=MusicLibrary;UID={sql_user};PWD={sql_password}'
+        else:
+            # Local development configuration
+            conn_str = os.getenv('SQL_SERVER_CONNECTION_STRING', 
+                'DRIVER={ODBC Driver 17 for SQL Server};SERVER=USER\\MSSQLSERVER03;DATABASE=MusicLibrary;Trusted_Connection=yes;')
+        
+        conn = pyodbc.connect(conn_str)
+        return conn
+        
+    except Exception as e:
+        print("Error establishing database connection:", e)
+        raise
+
+# Create an initial connection
+conn = get_db_connection()
 cursor = conn.cursor()
 
 # Start the monitoring thread
@@ -965,7 +996,21 @@ def get_user_liked_songs():
     
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
-    print("Server is running on port 5000")
-    
-    monitor_comments(conn);
+    try:
+        # Get port from environment variable for Railway
+        port = int(os.environ.get("PORT", 5000))
+        
+        if use_https and os.path.exists(CERT_FILE) and os.path.exists(KEY_FILE):
+            # Use HTTPS configuration with certificates
+            context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            context.load_cert_chain(CERT_FILE, KEY_FILE)
+            app.run(host='0.0.0.0', port=port, ssl_context=context, debug=False)
+        else:
+            # Standard configuration
+            app.run(host='0.0.0.0', port=port, debug=False)
+            
+        # Start the monitor thread if not in Railway
+        if not os.getenv('RAILWAY_ENVIRONMENT'):
+            monitor_comments(conn)
+    except Exception as e:
+        print(f"Error starting Flask application: {e}")

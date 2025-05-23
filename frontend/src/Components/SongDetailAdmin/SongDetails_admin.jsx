@@ -3,6 +3,7 @@ import Draggable from 'react-draggable';
 import {X} from 'lucide-react'
 import Update from '../AddUpdateWidgets/UpdateSong.jsx'
 import axios from 'axios';
+import config from '../../config';
 
 const SongDetails_admin = ({song, setIsOpened}) => {
   const nodeRef = useRef(null);
@@ -19,7 +20,7 @@ const SongDetails_admin = ({song, setIsOpened}) => {
 
     if (confirmDelete) {
       try {      const response = await fetch(
-        `http://localhost:3000/api/songs/delete/${song.track_id}`, 
+        `/api/songs/delete/${song.track_id}`, 
         {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' }

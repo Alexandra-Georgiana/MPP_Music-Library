@@ -3,6 +3,7 @@ import { Search } from "lucide-react";
 import Logo from "../../assets/logo.png"
 import './index.css'
 import {useNavigate} from 'react-router-dom'
+import config from '../../config';
 
 const heather = () => {
     const navigate = useNavigate();
@@ -17,7 +18,7 @@ const heather = () => {
           }
       
           try {
-            const response = await fetch(`http://localhost:3000/api/songs/search/${searchTerm}`);
+            const response = await fetch(`/api/songs/search/${searchTerm}`);
             const data = await response.json();
             setFilteredSongs(data);
           } catch (error) {

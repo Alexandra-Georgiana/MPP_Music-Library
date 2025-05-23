@@ -5,6 +5,7 @@ import Heather from '../../Components/Headers/header.jsx'
 import './index.css'
 import { useNavigate } from 'react-router-dom'
 import { FastForward } from "lucide-react";
+import config from '../../config';
 
 const SongDetails = () => {
   const navigate = useNavigate();
@@ -70,7 +71,7 @@ const SongDetails = () => {
           setLoading(true);
   
           // Pass offset and limit as query parameters
-          const response = await fetch(`http://localhost:3000/api/songs?offset=${offset}&limit=${limit}`, {
+          const response = await fetch(`/api/songs?offset=${offset}&limit=${limit}`, {
               method: 'GET',
               headers: {
                   'Content-Type': 'application/json',
@@ -111,7 +112,7 @@ const SongDetails = () => {
   
     const getSongDetails = async (trackId) => {
       try {
-          const response = await fetch(`http://localhost:3000/api/songs/${trackId}`); // Use the /songs/{id} endpoint
+          const response = await fetch(`/api/songs/${trackId}`); // Use the /songs/{id} endpoint
           if (!response.ok) {
               console.error('Error fetching song details:', response.status, response.statusText);
               throw new Error(`Failed to fetch song details: ${response.status} ${response.statusText}`);
@@ -143,7 +144,7 @@ const SongDetails = () => {
       }
     
       try {
-        const response = await fetch('http://localhost:3000/api/songs/like', {
+        const response = await fetch('/api/songs/like', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

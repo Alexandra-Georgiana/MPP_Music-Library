@@ -3,6 +3,7 @@ import Header from '../../Components/Headers/header.jsx'
 import Left from "../../assets/login.jpg"
 import './index.css'
 import { useNavigate } from 'react-router-dom'
+import config from '../../config';
 
 const signin = () => {
   const navigate = useNavigate();
@@ -51,7 +52,7 @@ const signin = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:3000/api/register', {
+      const response = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newUser),

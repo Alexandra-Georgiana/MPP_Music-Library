@@ -1,0 +1,42 @@
+:80 {
+    root * /app/frontend/dist
+    encode gzip
+    file_server {
+        index index.html
+    }
+    
+    # Handle all routes by serving index.html
+    @notApi {
+        not path /api/*
+    }
+    handle @notApi {
+        try_files {path} /index.html
+    }
+    
+    # Proxy API requests to the backend
+    handle /api/* {
+        reverse_proxy node-backend:3000
+    }
+
+    # Add security headers
+    header {
+        # Enable HSTS
+        Strict-Transport-Security "max-age=31536000;"
+        # Prevent MIME type sniffing
+        X-Content-Type-Options "nosniff"
+        # Prevent clickjacking
+        X-Frame-Options "SAMEORIGIN"
+        # Enable XSS protection
+        X-XSS-Protection "1; mode=block"
+    }
+
+    # Log configuration for debugging
+    log {
+        output stdout
+        format console
+        level DEBUG
+    }
+
+    # Debug configuration
+    debug
+}

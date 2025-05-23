@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import Draggable from "react-draggable";
 import { X } from "lucide-react";
 import "./index.css";
+import config from '../../config';
 
 const UpdateSong = ({ song, setIsUpdate }) => {
   const nodeRef = useRef(null);
@@ -53,13 +54,13 @@ const UpdateSong = ({ song, setIsUpdate }) => {
         validateFile(audioFile, 'Audio');
         formData.append('audioFile', audioFile);
       }      // First, verify the song exists
-      const checkResponse = await fetch(`http://localhost:3000/api/songs/${song.track_id}`);
+      const checkResponse = await fetch(`/api/songs/${song.track_id}`);
       if (!checkResponse.ok) {
         throw new Error('Song not found');
       }
 
       const xhr = new XMLHttpRequest();
-      xhr.open('PUT', `http://localhost:3000/api/songs/update/${song.track_id}`);
+      xhr.open('PUT', `/api/songs/update/${song.track_id}`);
       
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {

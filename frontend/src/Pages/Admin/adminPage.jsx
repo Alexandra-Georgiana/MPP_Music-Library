@@ -7,6 +7,7 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } fro
 import { X } from 'lucide-react';
 import { useNavigate, BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MonitoredUsers from './monitoredUsers';
+import config from '../../config';
 
 const AdminPage = () => {
   const nodeRef = useRef(null);
@@ -56,7 +57,7 @@ const AdminPage = () => {
     const checkServer = async () => {
 
       try {
-        const response = await fetch('http://localhost:3000/api/health', {
+        const response = await fetch('/api/health', {
           method: 'GET',
           cache: 'no-cache',
         });
@@ -98,7 +99,7 @@ const AdminPage = () => {
   useEffect(() => {
     const fetchSongs = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/songs');
+        const response = await fetch('/api/songs');
         if (!response.ok) {
           throw new Error(`Error fetching songs: ${response.status}`);
         }
@@ -151,7 +152,7 @@ const AdminPage = () => {
     }
 
     if (navigator.onLine) {
-      fetch(`http://localhost:3000/api/songs/search/${encodeURIComponent(searchTerm)}`)
+      fetch(`/api/songs/search/${encodeURIComponent(searchTerm)}`)
         .then(response => response.json())	
         .then(data => {
           console.log('Fetched songs:', data);
@@ -175,9 +176,9 @@ const AdminPage = () => {
   useEffect(() => {
     const fetchMostCommonGenres = async () => {
       try {
-        const lowResponse = await fetch('http://localhost:3000/api/mostCommonGenre/1');
-        const mediumResponse = await fetch('http://localhost:3000/api/mostCommonGenre/2');
-        const highResponse = await fetch('http://localhost:3000/api/mostCommonGenre/3');
+        const lowResponse = await fetch('/api/mostCommonGenre/1');
+        const mediumResponse = await fetch('/api/mostCommonGenre/2');
+        const highResponse = await fetch('/api/mostCommonGenre/3');
 
         if (lowResponse.ok) {
           const lowData = await lowResponse.json();
@@ -250,7 +251,7 @@ const getSongs = async (reset = false) => {
                                                    sortConfig.key === 'album' ? 'album_name' : 
                                                    sortConfig.key}&order=${sortConfig.ascending ? 'asc' : 'desc'}` : '';
         
-        const response = await fetch(`http://localhost:3000/api/songs?offset=${offset}&limit=${limit}${sortParam}`, {
+        const response = await fetch(`/api/songs?offset=${offset}&limit=${limit}${sortParam}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

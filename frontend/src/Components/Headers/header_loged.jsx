@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { isAuthenticated } from '../../utils/auth';
 import Logo from "../../assets/logo.png";
 import './index.css';
+import config from '../../config';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ const Header = () => {
       }
   
       try {
-        const response = await fetch(`http://localhost:3000/api/songs/search/${searchTerm}`);
+        const response = await fetch(`/api/songs/search/${searchTerm}`);
         const data = await response.json();
         setFilteredSongs(data);
       } catch (error) {

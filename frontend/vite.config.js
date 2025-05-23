@@ -5,12 +5,13 @@ import svgr from 'vite-plugin-svgr'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), svgr()],
+  base: '/MPP/',
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'https://mppmusic-library-production.up.railway.app',
         changeOrigin: true,
-        secure: false,
+        secure: true,
       }
     }
   },

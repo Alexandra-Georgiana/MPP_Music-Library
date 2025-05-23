@@ -1,9 +1,13 @@
 // Simple railway-up.js script for Music Player Project
 // This resolves the "Is a directory (os error 21)" error
-const { spawn } = require('child_process');
-const path = require('path');
-const fs = require('fs');
-const os = require('os');
+import { spawn } from 'child_process';
+import path from 'path';
+import fs from 'fs';
+import os from 'os';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 console.log('===========================================');
 console.log('Starting Music Player Project on Railway...');
