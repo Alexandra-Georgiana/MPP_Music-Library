@@ -5,7 +5,7 @@ import svgr from 'vite-plugin-svgr'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), svgr()],
-  base: process.env.NODE_ENV === 'production' ? '/MPP_Music-Library/' : '/MPP_Music-Library/',
+  base: '/',
   server: {
     proxy: {
       '/api': {
