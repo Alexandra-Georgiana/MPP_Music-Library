@@ -3,7 +3,7 @@ import {useEffect} from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { HashRouter, Routes, Route } from 'react-router-dom'
 import Start from './Pages/StartPage/start.jsx'
 import Home1 from './Pages/HomePage/home1.jsx'
 import Login from './Pages/RegistrationForms/login.jsx'
@@ -37,10 +37,10 @@ function App() {
   return (
     <main>
       <div>
-        <BrowserRouter>
-        <AdimnSC/>
+        <HashRouter>
+          <AdimnSC/>
           <Routes>
-            <Route path="/" element={<Start />} />
+            <Route path="/MPP" element={<Start />} />
             <Route path="/home1" element={<Home1 />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signin" element={<Signin />} />
@@ -49,13 +49,13 @@ function App() {
             <Route path="/home2" element={<Home2 />} />
             <Route path="/song1/:id" element={<SongDetail1 />} />
             <Route path="/song2/:id" element={<SongDetail2 />} />
-            <Route path= "/favorites" element={<Favorites />} />
-            <Route path = "/admin" element = {<Admin />} />
-            <Route path = "/admin_login" element = {<AdminLog />} />
-            <Route path = "/monitored_users" element = {<MonitorUsers />} />
+            <Route path="/favorites" element={<Favorites />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin_login" element={<AdminLog />} />
+            <Route path="/monitored_users" element={<MonitorUsers />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
           </Routes>
-        </BrowserRouter>
+        </HashRouter>
       </div>
     </main>
   )
