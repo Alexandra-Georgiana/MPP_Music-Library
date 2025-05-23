@@ -40,7 +40,7 @@ function App() {
         <HashRouter>
           <AdimnSC/>
           <Routes>
-            <Route path="/MPP" element={<Start />} />
+            <Route path="/" element={<Start />} />
             <Route path="/home1" element={<Home1 />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signin" element={<Signin />} />
