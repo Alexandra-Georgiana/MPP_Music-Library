@@ -24,7 +24,7 @@ const EditProfile = () => {
           return;
         }
   
-        const response = await fetch('/api/profile', {
+        const response = await fetch(`${config.apiUrl}/profile`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -76,7 +76,7 @@ const EditProfile = () => {
         formData.append('avatar', selectedImage);
       }
 
-      const response = await fetch('/api/update', {
+      const response = await fetch(`${config.apiUrl}/update`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

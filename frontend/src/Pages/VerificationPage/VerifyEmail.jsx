@@ -76,7 +76,7 @@ const VerifyEmail = () => {
         }
 
         try {
-            const response = await fetch('/api/verify-email', {
+            const response = await fetch(`${config.apiUrl}/verify-email`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ const VerifyEmail = () => {
         setError('');
 
         try {
-            const response = await fetch('/api/resend-verification', {
+            const response = await fetch(`${config.apiUrl}/resend-verification`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

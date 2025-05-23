@@ -2,6 +2,39 @@ version: '3.8'
 
 services:
   sqlserver:
+    build:
+      context: .
+      dockerfile: Dockerfile.sqlserver
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Developer
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+
+  flask:
+    build:
+      context: .
+      dockerfile: Dockerfile.flask
+    ports:
+      - "5000:5000"
+    environment:
+      - SQL_SERVER_HOST=sqlserver
+      - SQL_SERVER_DATABASE=MusicLibrary
+      - SQL_SERVER_USERNAME=sa
+      - SQL_SERVER_PASSWORD=YourStrong@Passw0rd
+      - FLASK_ENV=production
+      - PORT=5000
+    depends_on:
+      - sqlserver
+
+volumes:
+  sqlserver_data:
+
+services:
+  sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
       - ACCEPT_EULA=Y

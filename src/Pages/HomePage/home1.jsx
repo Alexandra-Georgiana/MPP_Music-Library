@@ -60,7 +60,7 @@ const home1 = () => {
       try {
           setLoading(true);
   
-          const response = await fetch(`${config.apiUrl}/songs?offset=${customOffset}&limit=${limit}`, {
+          const response = await fetch(`/api/songs?offset=${customOffset}&limit=${limit}`, {
               method: 'GET',
               headers: {
                   'Content-Type': 'application/json',

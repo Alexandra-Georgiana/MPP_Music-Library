@@ -55,7 +55,7 @@ export const checkAuthToken = async () => {
 
   try {
     console.log('Making verify-token request');
-    const response = await fetch('http://localhost:3000/api/verify-token', {
+    const response = await fetch(`${config.apiUrl}/verify-token`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,

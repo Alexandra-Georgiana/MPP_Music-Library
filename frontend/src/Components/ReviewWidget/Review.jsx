@@ -35,12 +35,7 @@ const navigate = useNavigate();
             }            
             console.log("Submitting review for song:", currentSong.track_id);
             
-            // Determine API base URL based on environment
-            const apiBaseUrl = import.meta.env.PROD 
-                ? 'https://mpp-node-backend.onrender.com' 
-                : '';
-            
-            const response = await fetch(`${apiBaseUrl}/api/songs/review`, {
+            const response = await fetch(`${config.apiUrl}/songs/review`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',

@@ -1,10 +1,9 @@
 const config = {
-    apiUrl: process.env.NODE_ENV === 'production' 
-        ? 'https://mppmusic-library-production.up.railway.app/api'
-        : 'http://localhost:3000/api',
-    baseUrl: process.env.NODE_ENV === 'production'
-        ? 'https://mppmusic-library-production.up.railway.app'
-        : 'http://localhost:3000'
+    // Heroku backend URL for all API calls
+    baseUrl: import.meta.env.VITE_API_URL || 'https://mpp-music-library.herokuapp.com',
+    
+    // API URL is the same as base URL in Heroku deployment
+    apiUrl: import.meta.env.VITE_API_URL || 'https://mpp-music-library.herokuapp.com/api'
 };
 
 export default config;

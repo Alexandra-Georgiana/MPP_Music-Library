@@ -54,13 +54,13 @@ const UpdateSong = ({ song, setIsUpdate }) => {
         validateFile(audioFile, 'Audio');
         formData.append('audioFile', audioFile);
       }      // First, verify the song exists
-      const checkResponse = await fetch(`/api/songs/${song.track_id}`);
+      const checkResponse = await fetch(`${config.apiUrl}/songs/${song.track_id}`);
       if (!checkResponse.ok) {
         throw new Error('Song not found');
       }
 
       const xhr = new XMLHttpRequest();
-      xhr.open('PUT', `/api/songs/update/${song.track_id}`);
+      xhr.open('PUT', `${config.apiUrl}/songs/update/${song.track_id}`);
       
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {

@@ -18,7 +18,7 @@ const heather = () => {
           }
       
           try {
-            const response = await fetch(`/api/songs/search/${searchTerm}`);
+            const response = await fetch(`${config.apiUrl}/songs/search/${searchTerm}`);
             const data = await response.json();
             setFilteredSongs(data);
           } catch (error) {

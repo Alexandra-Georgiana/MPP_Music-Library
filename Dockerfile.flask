@@ -1,0 +1,23 @@
+# Use Python 3.9
+FROM python:3.9-slim
+
+# Install SQL Server dependencies
+RUN apt-get update && \
+    apt-get install -y curl gnupg2 && \
+    curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
+    apt-get update && \
+    ACCEPT_EULA=Y apt-get install -y msodbcsql18 unixodbc-dev
+
+# Create and set working directory
+WORKDIR /app
+
+# Copy requirements first for caching
+COPY frontend/backend/requirements.txt .
+RUN pip install -r requirements.txt
+
+# Copy the rest of the application
+COPY frontend/backend .
+
+# Command to run the application
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:$PORT"]

@@ -95,7 +95,7 @@ TRUNCATE TABLE songs;
 SELECT * FROM Admin;
 
 
-SELECT * FROM songs WHERE track_name = 'Tesr';
+SELECT * FROM songs;
 
 SELECT TOP 1 genre
                 FROM songs

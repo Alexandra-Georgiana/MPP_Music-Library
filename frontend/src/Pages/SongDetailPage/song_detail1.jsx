@@ -71,7 +71,7 @@ const SongDetails = () => {
           setLoading(true);
   
           // Pass offset and limit as query parameters
-          const response = await fetch(`/api/songs?offset=${offset}&limit=${limit}`, {
+          const response = await fetch(`${config.apiUrl}/songs?offset=${offset}&limit=${limit}`, {
               method: 'GET',
               headers: {
                   'Content-Type': 'application/json',
@@ -112,7 +112,7 @@ const SongDetails = () => {
   
     const getSongDetails = async (trackId) => {
       try {
-          const response = await fetch(`/api/songs/${trackId}`); // Use the /songs/{id} endpoint
+          const response = await fetch(`${config.apiUrl}/songs/${trackId}`); // Use the /songs/{id} endpoint
           if (!response.ok) {
               console.error('Error fetching song details:', response.status, response.statusText);
               throw new Error(`Failed to fetch song details: ${response.status} ${response.statusText}`);
@@ -144,7 +144,7 @@ const SongDetails = () => {
       }
     
       try {
-        const response = await fetch('/api/songs/like', {
+        const response = await fetch(`${config.apiUrl}/songs/like`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

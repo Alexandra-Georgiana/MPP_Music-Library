@@ -41,7 +41,7 @@ const AddSong = ({ setAddSong, songs, setSongs }) => {
       formData.append('albumCover', imageFile);
       formData.append('audioFile', audioFile);
 
-      const response = await fetch('/api/addSong', {
+      const response = await fetch(`${config.apiUrl}/addSong`, {
         method: 'POST',
         body: formData,
       });
@@ -55,7 +55,7 @@ const AddSong = ({ setAddSong, songs, setSongs }) => {
       alert(result.message || 'Song added successfully!');
       
       // Refresh the songs list
-      const songsResponse = await fetch('/api/songs');
+      const songsResponse = await fetch(`${config.apiUrl}/songs`);
       if (songsResponse.ok) {
         const updatedSongs = await songsResponse.json();
         setSongs(updatedSongs);

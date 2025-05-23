@@ -14,8 +14,6 @@ from dotenv import load_dotenv
 import ssl
 
 app = Flask(__name__)
-load_dotenv()  # Load environment variables
-
 # Email Configuration
 GMAIL_USER = os.getenv('GMAIL_USER', 'your-email@gmail.com')
 GMAIL_APP_PASSWORD = os.getenv('GMAIL_APP_PASSWORD', 'your-app-password')
@@ -56,23 +54,30 @@ def admin_token_required(f):
 
         return f(*args, **kwargs)
     return decorated
-
-# Get database connection details from environment variables
+     # Check if running on Heroku
 def get_db_connection():
     try:
-        is_railway = os.getenv('RAILWAY_ENVIRONMENT') is not None
+        # Check if running on Heroku
+        database_url = os.getenv('DATABASE_URL')
         
-        if is_railway:
-            # Railway SQL Server configuration
-            sql_host = os.getenv('RAILWAY_DATABASE_HOST', 'sqlserver')
-            sql_user = os.getenv('RAILWAY_DATABASE_USER', 'sa')
-            sql_password = os.getenv('RAILWAY_DATABASE_PASSWORD', 'StrongPassword123!')
-            sql_port = os.getenv('RAILWAY_DATABASE_PORT', '1433')
-            conn_str = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={sql_host},{sql_port};DATABASE=MusicLibrary;UID={sql_user};PWD={sql_password}'
+        if database_url:
+            # Heroku connection string with Windows Authentication
+            conn_str = (
+                'DRIVER={ODBC Driver 17 for SQL Server};'
+                f'SERVER={database_url};'
+                'DATABASE=MusicLibrary;'
+                'Trusted_Connection=yes;'
+                'TrustServerCertificate=yes;'
+            )
         else:
-            # Local development configuration
-            conn_str = os.getenv('SQL_SERVER_CONNECTION_STRING', 
-                'DRIVER={ODBC Driver 17 for SQL Server};SERVER=USER\\MSSQLSERVER03;DATABASE=MusicLibrary;Trusted_Connection=yes;')
+            # Local development configuration with Windows Authentication
+            conn_str = (
+                'DRIVER={ODBC Driver 17 for SQL Server};'
+                'SERVER=USER\\MSSQLSERVER03;'
+                'DATABASE=MusicLibrary;'
+                'Trusted_Connection=yes;'
+                'TrustServerCertificate=yes;'
+            )
         
         conn = pyodbc.connect(conn_str)
         return conn
@@ -80,10 +85,6 @@ def get_db_connection():
     except Exception as e:
         print("Error establishing database connection:", e)
         raise
-
-# Create an initial connection
-conn = get_db_connection()
-cursor = conn.cursor()
 
 # Start the monitoring thread
 

@@ -90,7 +90,7 @@ const LikedSongs = () => {
         if (!token) {
         navigate('/login');
         return;
-        }const response = await fetch('http://localhost:3000/api/songs/liked', {
+        }const response = await fetch(`${config.apiUrl}/songs/liked`, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',

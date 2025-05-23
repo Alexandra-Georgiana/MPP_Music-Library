@@ -20,7 +20,7 @@ const SongDetails_admin = ({song, setIsOpened}) => {
 
     if (confirmDelete) {
       try {      const response = await fetch(
-        `/api/songs/delete/${song.track_id}`, 
+        `${config.apiUrl}/songs/delete/${song.track_id}`, 
         {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' }
@@ -48,7 +48,7 @@ const SongDetails_admin = ({song, setIsOpened}) => {
 
   const handleUpdate = async (updatedSongData) => {
     try {
-      await axios.put(`/api/songs/${song.id}`, updatedSongData);
+      await axios.put(`${config.apiUrl}/songs/${song.id}`, updatedSongData);
       alert("Song updated successfully!");
       setIsUpdate(false);
     } catch (error) {
