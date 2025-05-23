@@ -53,21 +53,23 @@ def admin_token_required(f):
             return jsonify({'error': 'Invalid token!'}), 401
 
         return f(*args, **kwargs)
-    return decorated
-     # Check if running on Heroku
+    return decorated# Start the monitoring thread
+
 def get_db_connection():
     try:
-        # Check if running on Heroku
+        # Check if running on Azure (DATABASE_URL environment variable will be set)
         database_url = os.getenv('DATABASE_URL')
         
         if database_url:
-            # Heroku connection string with Windows Authentication
+            # Parse Azure SQL Server connection string
             conn_str = (
                 'DRIVER={ODBC Driver 17 for SQL Server};'
-                f'SERVER={database_url};'
-                'DATABASE=MusicLibrary;'
-                'Trusted_Connection=yes;'
+                f'SERVER={os.getenv("AZURE_SQL_SERVER")};'  # Azure SQL Server hostname
+                f'DATABASE={os.getenv("AZURE_SQL_DATABASE", "MusicLibrary")};'  # Database name, default to MusicLibrary
+                f'UID={os.getenv("AZURE_SQL_USER")};'  # Azure SQL Server username
+                f'PWD={os.getenv("AZURE_SQL_PASSWORD")};'  # Azure SQL Server password
                 'TrustServerCertificate=yes;'
+                'Encrypt=yes;'  # Azure requires encryption
             )
         else:
             # Local development configuration with Windows Authentication
@@ -81,22 +83,6 @@ def get_db_connection():
         
         conn = pyodbc.connect(conn_str)
         return conn
-        
-    except Exception as e:
-        print("Error establishing database connection:", e)
-        raise
-
-# Start the monitoring thread
-
-# Function to create a new database connection for each request
-def get_db_connection():
-    try:
-        conn = pyodbc.connect(
-            'DRIVER={ODBC Driver 17 for SQL Server};'
-            'SERVER=USER\\MSSQLSERVER03;'
-            'DATABASE=MusicLibrary;'
-            'Trusted_Connection=yes;'
-        )
         return conn
     except Exception as e:
         print("Error establishing database connection:", e)
