@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
-import pyodbc
-from monitor_thread import monitor_comments
+import mysql.connector
+from mysql.connector import Error
 import datetime
 from functools import wraps
-import jwt as pyjwt  # Rename to avoid confusion
+import jwt as pyjwt
+import os
+from dotenv import load_dotenv
 import random
 import string
 import smtplib
@@ -55,35 +57,62 @@ def admin_token_required(f):
         return f(*args, **kwargs)
     return decorated# Start the monitoring thread
 
-def get_db_connection():
+def get_mysql_connection():
+    """Get database connection using Railway credentials if available"""
     try:
-        # Check if running on Azure (DATABASE_URL environment variable will be set)
-        database_url = os.getenv('DATABASE_URL')
-        
-        if database_url:
-            # Parse Azure SQL Server connection string
-            conn_str = (
-                'DRIVER={ODBC Driver 17 for SQL Server};'
-                f'SERVER={os.getenv("AZURE_SQL_SERVER")};'  # Azure SQL Server hostname
-                f'DATABASE={os.getenv("AZURE_SQL_DATABASE", "MusicLibrary")};'  # Database name, default to MusicLibrary
-                f'UID={os.getenv("AZURE_SQL_USER")};'  # Azure SQL Server username
-                f'PWD={os.getenv("AZURE_SQL_PASSWORD")};'  # Azure SQL Server password
-                'TrustServerCertificate=yes;'
-                'Encrypt=yes;'  # Azure requires encryption
+        # Try Railway connection first
+        if os.getenv('MYSQLHOST'):
+            return mysql.connector.connect(
+                host=os.getenv('MYSQLHOST'),
+                user=os.getenv('MYSQLUSER'),
+                password=os.getenv('MYSQLPASSWORD'),
+                database=os.getenv('MYSQLDATABASE'),
+                port=int(os.getenv('MYSQLPORT', '3306')),
+                charset='utf8mb4',
+                use_unicode=True,
+                buffered=True
             )
+        # Fallback to local connection
         else:
-            # Local development configuration with Windows Authentication
-            conn_str = (
-                'DRIVER={ODBC Driver 17 for SQL Server};'
-                'SERVER=USER\\MSSQLSERVER03;'
-                'DATABASE=MusicLibrary;'
-                'Trusted_Connection=yes;'
-                'TrustServerCertificate=yes;'
+            return mysql.connector.connect(
+                host="localhost",
+                user="root",
+                password="N15feb05.",
+                database="MusicLibrary",
+                charset='utf8mb4',
+                use_unicode=True,
+                buffered=True
             )
-        
-        conn = pyodbc.connect(conn_str)
-        return conn
-        return conn
+    except mysql.connector.Error as err:
+        print(f"MySQL connection error: {err}")
+        raise
+
+def get_db_connection():
+    """Get database connection using Railway credentials if available, otherwise use local"""
+    try:
+        # Try Railway connection first
+        if os.getenv('MYSQLHOST'):
+            return mysql.connector.connect(
+                host=os.getenv('MYSQLHOST'),
+                user=os.getenv('MYSQLUSER'),
+                password=os.getenv('MYSQLPASSWORD'),
+                database=os.getenv('MYSQLDATABASE'),
+                port=int(os.getenv('MYSQLPORT', '3306')),
+                charset='utf8mb4',
+                use_unicode=True,
+                buffered=True
+            )
+        # Fallback to local connection
+        else:
+            return mysql.connector.connect(
+                host="localhost",
+                user="root",
+                password="N15feb05.",
+                database="MusicLibrary",
+                charset='utf8mb4',
+                use_unicode=True,
+                buffered=True
+            )
     except Exception as e:
         print("Error establishing database connection:", e)
         raise
